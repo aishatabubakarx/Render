@@ -1,8 +1,5 @@
 name: unzip
-on:
-  push:
-    paths:
-      - 'stock-render-kit.zip'
+on: [push, workflow_dispatch]
 
 permissions:
   contents: write
@@ -12,16 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Unzip it
+
+      - name: Unzip
         run: |
-          unzip -o stock-render-kit.zip
-          rm stock-render-kit.zip
-          
-      - name: Push it back
+          if [ -f stock-render-kit.zip ]; then
+            unzip -o stock-render-kit.zip
+            rm stock-render-kit.zip
+          else
+            echo "no zip found, skipping"
+            exit 0
+          fi
+
+      - name: Push back
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "bot@github.com"
           git add -A
-          git commit -m "Unzipped stock-render-kit.zip [skip ci]" || exit 0
+          git commit -m "Unzipped files [skip ci]" || exit 0
           git push
