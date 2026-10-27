@@ -1,5 +1,8 @@
 name: unzip
-on: [push]
+on:
+  push:
+    paths:
+      - 'stock-render-kit.zip'
 
 permissions:
   contents: write
@@ -9,18 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Unzip stock-render-kit.zip
+      
+      - name: Unzip it
         run: |
           unzip -o stock-render-kit.zip
           rm stock-render-kit.zip
-
-      - name: Push unzipped files
+          
+      - name: Push it back
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add .
-          git commit -m "unzipped stock-render-kit.zip" || echo "nothing to commit"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Unzipped stock-render-kit.zip [skip ci]" || exit 0
           git push
