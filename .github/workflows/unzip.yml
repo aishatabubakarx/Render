@@ -3,7 +3,6 @@ on: [push, workflow_dispatch]
 
 permissions:
   contents: write
-  workflows: write
 
 jobs:
   unzip:
@@ -11,15 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Unzip
+      - name: Unzip without workflows folder
         run: |
-          unzip -o stock-render-kit.zip
-          rm stock-render-kit.zip
+          unzip -o stock-render-kit.zip -x ".github/*"
+          rm -f stock-render-kit.zip
 
-      - name: Push back
+      - name: Push files
         run: |
-          git config user.name "【entity-github¦canonical_name=GitHub】-actions[bot]"
-          git config user.email "bot@【entity-github¦canonical_name=GitHub】.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "bot@github.com"
           git add -A
-          git commit -m "Unzipped files [skip ci]" || exit 0
+          git commit -m "Unzipped stock-render-kit.zip [skip ci]" || exit 0
           git push
