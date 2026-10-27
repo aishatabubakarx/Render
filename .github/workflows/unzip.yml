@@ -3,6 +3,7 @@ on: [push, workflow_dispatch]
 
 permissions:
   contents: write
+  workflows: write
 
 jobs:
   unzip:
@@ -12,18 +13,13 @@ jobs:
 
       - name: Unzip
         run: |
-          if [ -f stock-render-kit.zip ]; then
-            unzip -o stock-render-kit.zip
-            rm stock-render-kit.zip
-          else
-            echo "no zip found, skipping"
-            exit 0
-          fi
+          unzip -o stock-render-kit.zip
+          rm stock-render-kit.zip
 
       - name: Push back
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "bot@github.com"
+          git config user.name "【entity-github¦canonical_name=GitHub】-actions[bot]"
+          git config user.email "bot@【entity-github¦canonical_name=GitHub】.com"
           git add -A
           git commit -m "Unzipped files [skip ci]" || exit 0
           git push
