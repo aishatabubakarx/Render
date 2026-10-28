@@ -1,0 +1,57 @@
+name: Render stock clips
+on:
+  workflow_dispatch:
+    inputs:
+      res:
+        description: Resolution
+        type: choice
+        default: '1080'
+        options: ['1080', '2160']
+      ids:
+        description: Concept ids to render, comma separated (blank = all)
+        required: false
+        default: ''
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install ffmpeg and Chromium
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Render this shard
+        run: python batch.py --res ${{ inputs.res }} --ids "${{ inputs.ids }}" --shard ${{ matrix.shard }} --shards 8 --workers 2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clips-${{ matrix.shard }}
+          path: output/*
+          if-no-files-found: ignore
+  package:
+    needs: render
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: clips-*
+          path: output
+          merge-multiple: true
+      - run: python adobe_csv.py output
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stock-pack
+          path: output/*
