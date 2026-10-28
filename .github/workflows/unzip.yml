@@ -10,15 +10,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Unzip without workflows folder
+      - name: Unzip any zip files
         run: |
-          unzip -o stock-render-kit.zip -x ".github/*"
-          rm -f stock-render-kit.zip
+          shopt -s nullglob
+          for zip in *.zip; do
+            echo "Unzipping $zip"
+            unzip -o "$zip" -x ".github/*"
+            rm -f "$zip"
+          done
 
       - name: Push files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "bot@github.com"
           git add -A
-          git commit -m "Unzipped stock-render-kit.zip [skip ci]" || exit 0
+          git commit -m "Unzipped zip files [skip ci]" || exit 0
           git push
