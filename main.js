@@ -1,3 +1,0 @@
-const FONTS=['700 40px "Orbitron"','900 40px "Orbitron"','700 40px "Montserrat"','800 40px "Montserrat"','900 40px "Montserrat"','400 40px "Great Vibes"','italic 700 40px "Playfair Display"','800 40px "Playfair Display"','400 40px "Bebas Neue"','400 40px "Pacifico"','700 40px "Amiri"','700 40px "JetBrains Mono"','400 40px "Creepster"'];
-window.init=async(id,scale,alpha,vertical)=>{A=!!alpha;if(vertical){W=1080;H=1920}else{W=1920;H=1080};await Promise.all(FONTS.map(f=>document.fonts.load(f,'Aa0 عيد')));S=scale||1;cv.width=W*S;cv.height=H*S;ctx=cv.getContext('2d',{alpha:A});C[id]();return 'ok'};
-window.renderAt=ms=>{tl.seek(ms);draw();return cv.toDataURL('image/png').slice(22)};
