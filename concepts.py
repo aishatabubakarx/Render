@@ -1,5 +1,0 @@
-def C(i,slug,title,desc,kw,cat,loop=False,text=False,vertical=False,bg='black'):
-    return dict(id=i,file=f'{i:02d}_{slug}.mp4',title=title,description=desc,keywords=kw,category=cat,seamless_loop=loop,has_baked_text=text,vertical=vertical,bg=bg)
-CONCEPTS=[
-C(1,'golden-glitter-dust-forms-heart-black','Premium Golden Glitter Dust Particles Swirling Together to Form a Glowing Heart With Ribbon Swoosh on Black Background, Valentines Day Love Motion Graphic','A glowing pen tip draws a ribbon swoosh and a heart in golden glitter. The dust scatters across the frame, then swirls together and settles into a glittering heart outline with a shimmer that travels along it. Pure black background.','golden dust,gold dust,gold glitter,glitter,glittering,sparkle,sparkling,heart,glowing heart,heart shape,love,valentines day,valentine,romantic,romance,wedding,anniversary,particles,dust particles,swirl,swoosh,ribbon,drawing,write on,reveal,isolated,black background,luxury,golden,gold,shiny,shimmer,magic,magical,fairy dust,stardust,glow,motion graphic,animation,overlay,screen blend,elegant,greeting card,celebration,mothers day,4k,vfx',15),
-]
