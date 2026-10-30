@@ -13,10 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT || github.token }}
+          token: ${{ secrets.CLEANUP_PAT || github.token }}
       - name: Bring contents to root and delete the original
         env:
           NAME: ${{ inputs.file }}
+          HAS_PAT: ${{ secrets.CLEANUP_PAT != '' }}
         run: |
           set -euo pipefail
           shopt -s dotglob nullglob
@@ -49,16 +50,12 @@ jobs:
           SRC="${SRC#./}"
           echo "Using: $SRC"
 
-          # 2. Folder: move its contents up to the root and delete the folder
+          # 2. Take the contents out of the folder, or extract the archive, or move the file
+          TMP=$(mktemp -d)
           if [ -d "$SRC" ]; then
-            TMP=$(mktemp -d)
             cp -a "$SRC"/. "$TMP"/
             rm -rf "$SRC"
-            cp -a "$TMP"/. .
-
-          # 3. File: extract if it is an archive, otherwise move it to the root
           else
-            TMP=$(mktemp -d)
             case "${SRC,,}" in
               *.zip)            unzip -q "$SRC" -d "$TMP" ;;
               *.tar.gz|*.tgz)   tar -xzf "$SRC" -C "$TMP" ;;
@@ -70,12 +67,20 @@ jobs:
                 fi
                 cp "$SRC" "$TMP/" ;;
             esac
-            rm -rf "$TMP/__MACOSX"
             rm -f "$SRC"
-            cp -a "$TMP"/. .
+          fi
+          rm -rf "$TMP/__MACOSX"
+
+          # 3. Without the CLEANUP_PAT secret GitHub blocks workflow files, so park them in a normal folder
+          if [ "$HAS_PAT" != "true" ] && [ -d "$TMP/.github/workflows" ]; then
+            mkdir -p workflow-files-to-add-manually
+            mv "$TMP"/.github/workflows/* workflow-files-to-add-manually/
+            rmdir "$TMP/.github/workflows" 2>/dev/null || true
+            echo "::notice::CLEANUP_PAT secret not found. Workflow files were put in workflow-files-to-add-manually/."
           fi
 
-          # 4. Commit and push
+          # 4. Copy everything to the root, then commit and push
+          cp -a "$TMP"/. .
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
