@@ -1,0 +1,47 @@
+name: Test Shutterstock login
+on:
+  workflow_dispatch:
+    inputs:
+      upload_file:
+        description: Optional path of ONE file in the repo to upload as a test (leave blank to only test the login)
+        required: false
+        default: ''
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test login and optional upload
+        env:
+          SHUTTERSTOCK_USER: ${{ secrets.SHUTTERSTOCK_USER }}
+          SHUTTERSTOCK_PASS: ${{ secrets.SHUTTERSTOCK_PASS }}
+          UPLOAD_FILE: ${{ inputs.upload_file }}
+        run: |
+          python3 - <<'EOF'
+          import os, sys, ftplib
+          user = (os.environ.get('SHUTTERSTOCK_USER') or '').strip()
+          pw = (os.environ.get('SHUTTERSTOCK_PASS') or '').strip()
+          print('username set:', bool(user), '| length', len(user), '| password set:', bool(pw), '| length', len(pw))
+          if not (user and pw):
+              sys.exit('Secrets SHUTTERSTOCK_USER and/or SHUTTERSTOCK_PASS are missing')
+          ftp = ftplib.FTP_TLS('ftps.shutterstock.com', timeout=120)
+          try:
+              ftp.login(user, pw)
+          except ftplib.error_perm as e:
+              sys.exit('LOGIN FAILED: ' + str(e))
+          ftp.prot_p()
+          print('LOGIN OK:', ftp.getwelcome())
+          def listing():
+              try:
+                  return ftp.nlst()
+              except ftplib.error_perm:
+                  return []
+          print('Files in your upload folder:', listing())
+          path = (os.environ.get('UPLOAD_FILE') or '').strip()
+          if path:
+              with open(path, 'rb') as f:
+                  ftp.storbinary('STOR ' + os.path.basename(path), f)
+              print('UPLOADED:', path)
+              print('Folder now:', listing())
+          ftp.quit()
+          EOF
