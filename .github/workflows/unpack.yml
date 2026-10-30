@@ -1,9 +1,9 @@
-name: Unpack file to root
+name: Unpack to root
 on:
   workflow_dispatch:
     inputs:
       file:
-        description: File name or path (for example stock-render-kit.zip)
+        description: Name of the folder or file (for example stock-render-kit (4))
         required: true
 permissions:
   contents: write
@@ -14,52 +14,70 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.PAT || github.token }}
-      - name: Move contents to root and delete the file
+      - name: Bring contents to root and delete the original
         env:
           NAME: ${{ inputs.file }}
         run: |
           set -euo pipefail
           shopt -s dotglob nullglob
 
-          # 1. Find the file (exact path first, then by name anywhere in the repo)
-          if [ -f "$NAME" ]; then
+          norm() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]'; }
+
+          # 1. Find it: exact path first, then a forgiving match on the name (folders and files)
+          WANT=$(norm "$(basename "$NAME")")
+          SRC=""
+          if [ -e "$NAME" ] && [ "$NAME" != "." ] && [ "$NAME" != ".git" ]; then
             SRC="$NAME"
           else
-            SRC=$(find . -path ./.git -prune -o -type f -name "$(basename "$NAME")" -print | head -n 1)
-          fi
-          if [ -z "${SRC:-}" ] || [ ! -f "$SRC" ]; then
-            echo "File not found: $NAME"; exit 1
+            EXACT=(); PREFIX=()
+            while IFS= read -r -d '' f; do
+              base=$(norm "$(basename "$f")")
+              if [ "$base" = "$WANT" ]; then EXACT+=("$f")
+              elif [[ "$base" == "$WANT"* ]]; then PREFIX+=("$f"); fi
+            done < <(find . -mindepth 1 -path ./.git -prune -o -print0)
+            if [ ${#EXACT[@]} -eq 1 ]; then SRC="${EXACT[0]}"
+            elif [ ${#EXACT[@]} -eq 0 ] && [ ${#PREFIX[@]} -eq 1 ]; then SRC="${PREFIX[0]}"
+            elif [ $(( ${#EXACT[@]} + ${#PREFIX[@]} )) -gt 1 ]; then
+              echo "More than one match for '$NAME'. Type the full name of one of these:"
+              printf '%s\n' "${EXACT[@]}" "${PREFIX[@]}"; exit 1
+            else
+              echo "Not found: $NAME"
+              echo "Top level of the repo:"; ls -A | head -50
+              exit 1
+            fi
           fi
           SRC="${SRC#./}"
+          echo "Using: $SRC"
 
-          # 2. Unpack to a temp folder (archives are extracted, other files are copied)
-          TMP=$(mktemp -d)
-          case "${SRC,,}" in
-            *.zip)            unzip -q "$SRC" -d "$TMP" ;;
-            *.tar.gz|*.tgz)   tar -xzf "$SRC" -C "$TMP" ;;
-            *.tar.bz2|*.tbz2) tar -xjf "$SRC" -C "$TMP" ;;
-            *.tar)            tar -xf "$SRC" -C "$TMP" ;;
-            *)
-              if [ "$(dirname "$SRC")" = "." ]; then
-                echo "$SRC is already in the root and is not an archive. Nothing to do."; exit 0
-              fi
-              cp "$SRC" "$TMP/" ;;
-          esac
-          rm -rf "$TMP/__MACOSX"
+          # 2. Folder: move its contents up to the root and delete the folder
+          if [ -d "$SRC" ]; then
+            TMP=$(mktemp -d)
+            cp -a "$SRC"/. "$TMP"/
+            rm -rf "$SRC"
+            cp -a "$TMP"/. .
 
-          # 3. If the archive has one top-level folder, use what is inside it
-          ITEMS=("$TMP"/*)
-          if [ ${#ITEMS[@]} -eq 1 ] && [ -d "${ITEMS[0]}" ]; then
-            TMP="${ITEMS[0]}"
+          # 3. File: extract if it is an archive, otherwise move it to the root
+          else
+            TMP=$(mktemp -d)
+            case "${SRC,,}" in
+              *.zip)            unzip -q "$SRC" -d "$TMP" ;;
+              *.tar.gz|*.tgz)   tar -xzf "$SRC" -C "$TMP" ;;
+              *.tar.bz2|*.tbz2) tar -xjf "$SRC" -C "$TMP" ;;
+              *.tar)            tar -xf "$SRC" -C "$TMP" ;;
+              *)
+                if [ "$(dirname "$SRC")" = "." ]; then
+                  echo "$SRC is already in the root. Nothing to do."; exit 0
+                fi
+                cp "$SRC" "$TMP/" ;;
+            esac
+            rm -rf "$TMP/__MACOSX"
+            rm -f "$SRC"
+            cp -a "$TMP"/. .
           fi
 
-          # 4. Delete the original and copy the contents to the root
-          rm -f "$SRC"
-          cp -a "$TMP"/. .
-
-          # 5. Commit and push
+          # 4. Commit and push
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Unpack $SRC to root" || { echo "No changes to commit"; exit 0; }
+          git commit -m "Move $SRC to root" || { echo "No changes to commit"; exit 0; }
           git push
