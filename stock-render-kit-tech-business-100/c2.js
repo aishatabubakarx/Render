@@ -1,0 +1,5 @@
+C[2]=()=>{newTL();const bin=K.binary({col:[40,120,255],dir:'r',a:.4,seed:2,layers:3}),R=rng(21),AR=Array.from({length:14},(_,i)=>({y:.1+.8*((i*5)%14)/14,m:1+(i%3),u0:R(),sz:44+R()*50,ph:R()*TAU,k:1+(i%2)}));
+ draw=()=>{clear();K.bg('#030A1C','#071A47',.0);bin(1);const u=now()/DUR,th=LOOP(now());ctx.save();ctx.globalCompositeOperation='lighter';
+  for(const a of AR){const x=((a.u0+u*a.m)%1)*(W+500)-250,y=a.y*H+Math.sin(th*a.k+a.ph)*46,ang=Math.cos(th*a.k+a.ph)*.16,e=Math.sin(Math.PI*clamp(x/W,0,1))**.5;
+   for(let t=0;t<4;t++){ctx.strokeStyle=rgba([0,229,255],.22*e);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-30,y+(t-1.5)*a.sz*.28);ctx.lineTo(x-30-a.sz*(1.5+t*.7),y+(t-1.5)*a.sz*.28);ctx.stroke()}
+   ctx.globalAlpha=e;K.glowLine(()=>K.arrowPath(x,y,a.sz*1.6,a.sz*.5,ang),[0,229,255],3,16,1);ctx.globalAlpha=1}ctx.restore();K.finish({bl:.8,ch:2,vg:.5})}};

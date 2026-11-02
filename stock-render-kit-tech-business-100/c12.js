@@ -1,0 +1,2 @@
+C[12]=()=>{newTL();const cl=K.H.cloud({x:W/2,y:H/2-150,s:300,col:[150,130,255],items:'devices'}),pl=K.plexus({n:70,col:[255,111,210],a:.4,dist:220,seed:12,dotc:[200,190,255]});
+ draw=()=>{clear();K.bg('#2A1B8F','#0B0630',.3);K.radial(W/2,H/2-140,700,[150,130,255],.25);pl(1);ctx.save();ctx.translate(0,40);cl(1);ctx.restore();K.finish({bl:.7,vg:.55})}};

@@ -1,0 +1,2 @@
+C[18]=()=>{newTL();const D=DUR/1000,g=K.intro(D),pp={v:0};A(pp,{v:0},{v:1},.4,3,'power2.out');const m=K.indiaMesh({x:1250,k:30}),dt=K.dots({col:[0,160,255],gap:80,a:.12});
+ draw=()=>{clear();K.bg('#02141F','#03060D',.3);ctx.globalAlpha=g.f;dt(1);K.radial(1250,H/2,700,[0,160,255],.18);m(pp.v);ctx.globalAlpha=1;K.finish({bl:.8,vg:.55});K.fade(g.f)}};

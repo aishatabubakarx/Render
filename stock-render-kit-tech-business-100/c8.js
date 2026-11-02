@@ -1,0 +1,2 @@
+C[8]=()=>{newTL();const sh=K.H.shield({s:260,col:[160,100,255],hex:true,check:true,y:H/2+20}),dt=K.dots({col:[200,120,255],gap:70,a:.3}),mo=K.motes({col:[255,79,216],n:50,a:.3,seed:8});
+ draw=()=>{clear();K.bg('#0B0626','#1b0b4a',.6);dt(1);mo(1);const th=LOOP(now()),s=1+.025*Math.sin(th*3);ctx.save();ctx.translate(W/2,H/2);ctx.scale(s,s);ctx.translate(-W/2,-H/2);sh(1);ctx.restore();K.finish({bl:.8,vg:.55})}};

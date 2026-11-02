@@ -1,0 +1,2 @@
+C[98]=()=>{newTL();const D=DUR/1000,g=K.intro(D),p={v:0};A(p,{v:0},{v:1},.5,3.6,'power1.out');const b=K.infoDonut({});
+ draw=()=>{clear();K.bg("#0B1530","#06091A",0);ctx.globalAlpha=g.f;b(p.v);ctx.globalAlpha=1;K.finish({bl:.35,vg:.5,gr:.02});K.fade(g.f)}};

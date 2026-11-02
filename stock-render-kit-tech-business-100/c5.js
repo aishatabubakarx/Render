@@ -1,0 +1,2 @@
+C[5]=()=>{newTL();const cl=K.H.cloud({x:1180,y:430,s:300,col:[61,255,192],items:'iot',period:3}),mo=K.motes({col:[138,107,255],n:70,a:.4,seed:5}),pl=K.plexus({n:34,col:[61,255,192],a:.35,dist:230,seed:8});
+ draw=()=>{clear();K.bg('#012A2E','#011016',.5);K.radial(1180,430,800,[61,255,192],.18);pl(.8);mo(1);cl(1);K.finish({bl:.8,vg:.55})}};

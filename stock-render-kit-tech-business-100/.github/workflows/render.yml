@@ -1,0 +1,193 @@
+name: Render stock clips
+on:
+  workflow_dispatch:
+    inputs:
+      res:
+        description: Resolution - 1080 = 1080p, 2160 = 4K (default), 3240 = 6K, 4320 = 8K
+        type: choice
+        default: '2160'
+        options: ['1080', '2160', '3240', '4320']
+      fmt:
+        description: Container - mov (default) or mp4
+        type: choice
+        default: mov
+        options: [mp4, mov]
+      codec:
+        description: Codec (auto = mp4 -> h264, mov -> ProRes 422 HQ up to 4K, hevc above 4K)
+        type: choice
+        default: auto
+        options: [auto, h264, hevc, prores, prores4444]
+      dur:
+        description: Clip length in seconds (15 to 20)
+        default: '15'
+      parts:
+        description: Split every clip into this many frame-parts rendered in parallel (1 for canvas clips at 4K; 4 or 8 for 6K/8K and for Blender clips)
+        type: choice
+        default: '4'
+        options: ['1', '2', '4', '8']
+      ids:
+        description: Concept ids to render, comma separated (blank = all). Tip - run a few Blender ids first to measure time
+        required: false
+        default: ''
+      samples:
+        description: Cycles samples per pixel for Blender clips (denoised). 32 = fast, 48 = default, 96 = hero shots
+        default: '48'
+      blender_res:
+        description: Render Blender plates at this height and let ffmpeg scale up (0 = native resolution, 2160 = cap at 4K for 6K/8K packs)
+        type: choice
+        default: '0'
+        options: ['0', '1080', '2160']
+      motion_blur:
+        description: Sub-frames per frame for canvas clips (1 = off, 4-8 = smooth fast streaks, n times slower)
+        default: '1'
+      effectcraft:
+        description: Run the EffectCraft finishing pass (Glow, light sweeps, radial blur) on clips that define ec rows
+        type: boolean
+        default: true
+      publish:
+        description: Where finished files go - release (default for MOV, no storage quota) or artifact
+        type: choice
+        default: release
+        options: [release, artifact]
+env:
+  PY: '3.11'
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.t.outputs.tag }}
+    steps:
+      - id: t
+        run: echo "tag=stock-pack-${{ github.run_number }}-$(date +%Y%m%d)" >> "$GITHUB_OUTPUT"
+      - name: Create the release that receives the clips
+        if: ${{ inputs.publish == 'release' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release create "${{ steps.t.outputs.tag }}" --title "Stock pack ${{ steps.t.outputs.tag }}" --notes "Rendered by the stock-motion-director workflow" || true
+  effectcraft:
+    if: ${{ inputs.effectcraft }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the prebuilt EffectCraft CLI (v0.20.0, tested with the skill's ec_stage.py)
+        run: |
+          curl -sL -o ec.tar.gz https://github.com/storytold/effectcraft/releases/download/v0.20.0/effectcraft-0.20.0-linux-x86_64.tar.gz
+          tar xzf ec.tar.gz
+          mkdir -p bin && cp effectcraft-0.20.0-linux-x86_64/bin/effectcraft-cli bin/
+          chmod +x bin/effectcraft-cli && ./bin/effectcraft-cli info | head -2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: effectcraft-cli
+          path: bin/effectcraft-cli
+          retention-days: 1
+  render:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+        part: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+        if: ${{ matrix.part < fromJSON(inputs.parts) }}
+      - uses: actions/setup-python@v5
+        if: ${{ matrix.part < fromJSON(inputs.parts) }}
+        with:
+          python-version: ${{ env.PY }}
+      - name: Install ffmpeg and Chromium
+        if: ${{ matrix.part < fromJSON(inputs.parts) }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Install Blender (bpy) when the pack has Blender clips
+        if: ${{ matrix.part < fromJSON(inputs.parts) && hashFiles('bl_c*.py') != '' }}
+        run: pip install bpy==5.0.1 numpy
+      - name: Render this shard and part
+        if: ${{ matrix.part < fromJSON(inputs.parts) }}
+        run: python batch.py --res ${{ inputs.res }} --fmt ${{ inputs.fmt }} --codec ${{ inputs.codec }} --dur ${{ inputs.dur }} --ids "${{ inputs.ids }}" --samples ${{ inputs.samples }} --blender-res ${{ inputs.blender_res }} --motion-blur ${{ inputs.motion_blur }} --shard ${{ matrix.shard }} --shards 25 --part ${{ matrix.part }} --parts ${{ inputs.parts }} --workers 1
+      - uses: actions/upload-artifact@v4
+        if: ${{ matrix.part < fromJSON(inputs.parts) }}
+        with:
+          name: clips-${{ matrix.shard }}-${{ matrix.part }}
+          path: output/**
+          if-no-files-found: ignore
+          retention-days: 1
+  package:
+    # one job per shard: join parts, thumbnails, 4K copies, optional EffectCraft finish, then publish. No single runner ever holds all clips.
+    needs: [prepare, render, effectcraft]
+    if: ${{ always() && needs.render.result == 'success' && (needs.effectcraft.result == 'success' || needs.effectcraft.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PY }}
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg libasound2t64
+      - uses: actions/download-artifact@v4
+        continue-on-error: true            # shards with no clips upload nothing
+        with:
+          pattern: clips-${{ matrix.shard }}-*
+          path: output
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        if: ${{ inputs.effectcraft }}
+        with:
+          name: effectcraft-cli
+          path: bin
+      - name: Finish this shard
+        run: |
+          [ -d output ] || { echo "no clips in shard ${{ matrix.shard }}"; exit 0; }
+          if [ -f bin/effectcraft-cli ]; then chmod +x bin/effectcraft-cli; export PATH="$PWD/bin:$PATH"; fi
+          python finalize.py output --no-csv
+      - name: Upload to the release
+        if: ${{ inputs.publish == 'release' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          shopt -s nullglob
+          for f in output/*.mp4 output/*.mov output/*.jpg output/adobe_upload_4k/*; do gh release upload "${{ needs.prepare.outputs.tag }}" "$f" --clobber; done
+      - name: Upload as artifact
+        if: ${{ inputs.publish == 'artifact' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: stock-pack-${{ matrix.shard }}
+          path: |
+            output/*.mp4
+            output/*.mov
+            output/*.jpg
+            output/adobe_upload_4k/*
+          if-no-files-found: ignore
+  csv:
+    needs: [prepare, package]
+    if: ${{ always() && needs.package.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PY }}
+      - name: Build the Adobe Stock CSV for every clip
+        run: python adobe_csv.py output --all ${{ inputs.fmt }} --ids "${{ inputs.ids }}"
+      - name: Upload CSVs to the release
+        if: ${{ inputs.publish == 'release' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload "${{ needs.prepare.outputs.tag }}" output/adobe_stock.csv output/metadata_full.csv --clobber
+      - uses: actions/upload-artifact@v4
+        if: ${{ inputs.publish == 'artifact' }}
+        with:
+          name: stock-pack-csv
+          path: output/*.csv

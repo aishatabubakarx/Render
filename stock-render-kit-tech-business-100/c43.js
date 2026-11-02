@@ -1,0 +1,1 @@
+C[43]=()=>{newTL();const wm=K.H.world({w:1700,y:H/2+20,col:[255,138,61],routes:[],dotc:[122,92,255],base:.7});draw=()=>{clear();K.bg('#0B0826','#1a0f4d',.4);K.radial(W/2,H/2,900,[122,92,255],.2);wm(1);K.finish({bl:.8,vg:.55})}};

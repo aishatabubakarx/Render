@@ -1,0 +1,2 @@
+C[7]=()=>{newTL();const D=DUR/1000,g=K.intro(D),sh=K.H.shield({s:300,col:[0,200,255]}),mo=K.motes({col:[0,200,255],n:60,a:.35,seed:7}),r=K.rings(W/2,H/2,420,{col:[0,200,255],n:2,a:.3});
+ draw=()=>{clear();K.bg('#020818','#05163a',.0);ctx.globalAlpha=g.f;mo(1);r(1);sh(g.e);ctx.globalAlpha=1;K.finish({bl:.75,vg:.55,sweep:{p:((now()/1000)%3)/3,ang:-.5,w:200,a:.2,col:'#bff'}});K.fade(g.f)}};

@@ -1,0 +1,2 @@
+C[4]=()=>{newTL();const D=DUR/1000,g=K.intro(D),v={x:0};A(v,{x:0},{x:1},.8,D*.6,'power2.inOut');const bt=K.H.battery({s:330,col:[0,255,150]}),r1=K.rings(W/2,H/2,430,{col:[0,255,150],n:3,a:.45}),mo=K.motes({col:[0,255,150],n:60,a:.35});
+ draw=()=>{clear();K.bg('#001A12','#00060A',.2);mo(g.f);r1(g.f);bt(g.e,v.x);K.finish({bl:.9,vg:.55});K.fade(g.f)}};

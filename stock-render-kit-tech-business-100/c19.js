@@ -1,0 +1,1 @@
+C[19]=()=>{newTL();const pl=K.plexus({n:130,col:[0,229,255],dist:200,a:1.3,seed:19});draw=()=>{clear();K.bg('#020816','#06214F',.4);K.radial(W/2,H/2,900,[0,120,255],.2);pl(1);K.finish({bl:.8,vg:.55})}};

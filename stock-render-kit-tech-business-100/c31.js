@@ -1,0 +1,1 @@
+C[31]=()=>{newTL();const D=DUR/1000,g=K.intro(D),pp={v:0};A(pp,{v:0},{v:1},.3,4,'power1.out');const ch=K.chain({}),mo=K.motes({col:[255,190,60],n:70,a:.4,seed:31});draw=()=>{clear();K.bg('#0B0702','#1C1204',0);ctx.globalAlpha=g.f;mo(1);ch(pp.v);ctx.globalAlpha=1;K.finish({bl:.8,vg:.55});K.fade(g.f)}};

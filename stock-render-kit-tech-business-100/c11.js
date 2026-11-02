@@ -1,0 +1,2 @@
+C[11]=()=>{newTL();const far=K.binary({col:[90,150,255],dir:'l',a:.2,seed:11,layers:1,sizeK:3.2}),near=K.binary({col:[140,220,255],dir:'l',a:.8,seed:12,layers:1,l0:2,sizeK:1.25,dens:4});
+ draw=()=>{clear();K.bg('#0A3DCE','#061A6B',.4);far(1);ctx.save();ctx.filter='none';near(1,[255,255,255]);ctx.restore();K.finish({bl:.7,vg:.5,gr:.035})}};

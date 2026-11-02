@@ -1,0 +1,2 @@
+C[3]=async()=>{newTL();const L=await P5(3),br=K.H.brain({s:340}),R=rng(33),F=Array.from({length:130},()=>({x:R()*W,y:R()*H,m:1+((R()*2)|0),o:R()*TAU}));
+ draw=()=>{clear();K.bg('#02030C','#0A0F2E',0);const th=LOOP(now());L.frame(p=>{p.clear();p.noFill();for(const f of F){p.stroke(255,111,210,46);p.strokeWeight(1.3);p.beginShape();let x=f.x,y=f.y;for(let i=0;i<26;i++){p.vertex(x,y);const a=p.noise(x*.002,y*.002)*TAU*2+Math.sin(th*f.m+f.o)*.6;x+=Math.cos(a)*9;y+=Math.sin(a)*9}p.endShape()}});L.blit('lighter',.6);br(1);K.finish({bl:.9,vg:.55,gr:.03})}};
