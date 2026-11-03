@@ -21,51 +21,36 @@ env:
   RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
 
 jobs:
+  # One runner per shard: each downloads only its own ~6 GB artifact, uploads it, then finishes.
   upload:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion != 'cancelled'
     runs-on: ubuntu-latest
     timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Download clips and CSV files from the render run
+      - name: Download this shard's clips
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p output tmp/clips tmp/other
-          gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts" --paginate \
-            --jq '.artifacts[] | [.name, .size_in_bytes] | @tsv' > tmp/list.tsv || true
-          if [ ! -s tmp/list.tsv ]; then echo "no artifacts in this run"; exit 0; fi
-          while IFS=$'\t' read -r name size; do
-            if echo "$name" | grep -qi 'pack'; then
-              # pack artifacts are only searched for CSV files; skip the huge ones to save disk space
-              if [ "$size" -gt 524288000 ]; then echo "skipping large pack artifact $name"; continue; fi
-              dest="tmp/other/$name"
-            else
-              dest="tmp/clips/$name"
-            fi
-            gh run download "$RUN_ID" -R "${{ github.repository }}" -n "$name" -D "$dest" || echo "could not download $name"
-          done < tmp/list.tsv
-          # only clip artifacts feed the stock sites
-          find tmp/clips -type f \( -iname '*.mp4' -o -iname '*.mov' -o -iname '*.m4v' -o -iname '*.mpg' -o -iname '*.mpeg' -o -iname '*.avi' \) ! -iname '*.part.*' -exec mv -n {} output/ \;
+          mkdir -p output tmp/clips
+          gh run download "$RUN_ID" -R "${{ github.repository }}" \
+            -p "clips-${{ matrix.shard }}-*" -D tmp/clips \
+            || { echo "no artifact for shard ${{ matrix.shard }}"; exit 0; }
+          find tmp/clips -type f \( -iname '*.mp4' -o -iname '*.mov' \) \
+            ! -iname '*.part.*' -exec mv -n {} output/ \;
+          rm -rf tmp/clips
+          ls -lh output
 
-      - name: Find CSV files and save them to the repo root
-        env:
-          REPO: ${{ github.repository }}
-          BRANCH: ${{ github.event.repository.default_branch }}
-        run: python stock_push.py --collect-csv tmp output --csv-dest . --label "$RUN_ID"
-
-      - name: Make the CSV files downloadable from the run page
-        uses: actions/upload-artifact@v4
-        with:
-          name: stock-csv-${{ env.RUN_ID }}
-          path: '*_run${{ env.RUN_ID }}*.csv'
-          if-no-files-found: ignore
-
-      - name: Upload new clips (Adobe Stock, Shutterstock, Pond5)
+      - name: Upload clips (Adobe Stock, Shutterstock, Pond5)
         env:
           ADOBE_SFTP_HOST: ${{ secrets.ADOBE_SFTP_HOST }}
           ADOBE_SFTP_USER: ${{ secrets.ADOBE_SFTP_USER }}
@@ -79,30 +64,71 @@ jobs:
           pip install paramiko
           python stock_push.py output
 
-      - name: Commit CSV files and upload records
+      - name: Commit upload records
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          changed=0
-          # 1) CSV files get their own commit, named after the files, so they are easy to find
-          git add -f -- ./*.csv 2>/dev/null || true
-          if ! git diff --cached --quiet; then
-            names=$(git diff --cached --name-only | tr '\n' ' ')
-            git commit -q -m "CSV: $names"
-            changed=1
-          fi
-          # 2) upload records are a separate commit
           for d in .adobe_uploaded .shutterstock_uploaded .pond5_uploaded; do
             git add "$d" 2>/dev/null || true
           done
-          if ! git diff --cached --quiet; then
-            git commit -q -m "Adobe/Shutterstock/Pond5 upload records"
-            changed=1
-          fi
-          [ "$changed" -eq 0 ] && exit 0
-          for i in 1 2 3 4; do
+          git diff --cached --quiet && exit 0
+          git commit -q -m "Upload records shard ${{ matrix.shard }}"
+          for i in 1 2 3 4 5; do
             git pull --rebase -q && git push -q && exit 0
-            sleep 5
+            sleep $((RANDOM % 10 + 3))
           done
-          echo "push failed after 4 tries"; exit 1
+          echo "push failed after 5 tries"; exit 1
+
+  # Small job: only the non-clip (pack) artifacts, searched for CSV files.
+  csv:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion != 'cancelled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Download pack artifacts (small ones only)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p tmp/other
+          gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts" --paginate \
+            --jq '.artifacts[] | [.name, .size_in_bytes] | @tsv' > tmp/list.tsv || true
+          if [ ! -s tmp/list.tsv ]; then echo "no artifacts in this run"; exit 0; fi
+          while IFS=$'\t' read -r name size; do
+            echo "$name" | grep -qi 'pack' || continue
+            if [ "$size" -gt 524288000 ]; then echo "skipping large pack artifact $name"; continue; fi
+            gh run download "$RUN_ID" -R "${{ github.repository }}" -n "$name" -D "tmp/other/$name" \
+              || echo "could not download $name"
+          done < tmp/list.tsv
+
+      - name: Find CSV files and save them to the repo root
+        env:
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.repository.default_branch }}
+        run: python stock_push.py --collect-csv tmp --csv-dest . --label "$RUN_ID"
+
+      - name: Make the CSV files downloadable from the run page
+        uses: actions/upload-artifact@v4
+        with:
+          name: stock-csv-${{ env.RUN_ID }}
+          path: '*_run${{ env.RUN_ID }}*.csv'
+          if-no-files-found: ignore
+
+      - name: Commit CSV files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f -- ./*.csv 2>/dev/null || true
+          git diff --cached --quiet && exit 0
+          names=$(git diff --cached --name-only | tr '\n' ' ')
+          git commit -q -m "CSV: $names"
+          for i in 1 2 3 4 5; do
+            git pull --rebase -q && git push -q && exit 0
+            sleep $((RANDOM % 10 + 3))
+          done
+          echo "push failed after 5 tries"; exit 1
