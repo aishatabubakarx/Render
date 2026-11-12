@@ -1,2 +1,0 @@
-C[28]=()=>{newTL();const D=DUR/1000,g=K.intro(D),pp={v:0};A(pp,{v:0},{v:1},.6,6,'power1.inOut');const wm=K.H.world({w:1560,y:H/2+20}),sh=K.H.shield({s:110,col:[0,216,255],y:H/2});
- draw=()=>{clear();K.bg('#030A1C','#06163a',.0);ctx.globalAlpha=g.f;K.radial(W/2,H/2,900,[0,120,255],.2);wm(pp.v);sh(g.e);ctx.globalAlpha=1;K.finish({bl:.8,vg:.55});K.fade(g.f)}};

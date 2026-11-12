@@ -1,2 +1,0 @@
-C[16]=()=>{newTL();const rn=K.rain({col:[40,255,140],seed:16}),far=K.rain({col:[20,140,80],seed:3,sz:46,a:.35});
- draw=()=>{clear();K.bg('#000A05','#001A0D',0);far(1);rn(1);K.finish({bl:.8,vg:.65,gr:.035,ls:.08})}};

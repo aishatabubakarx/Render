@@ -1,1 +1,0 @@
-C[29]=()=>{newTL();const cl=K.H.cloud({s:380,col:[244,200,90],items:'none',y:H/2-20}),mo=K.motes({col:[244,200,90],n:110,a:.6,seed:29,rMax:10});draw=()=>{clear();K.bg('#050301','#150E02',0);K.radial(W/2,H/2,800,[200,138,28],.1);mo(1);cl(1);K.finish({bl:.6,vg:.6,sweep:{p:((now()/DUR)*3)%1,ang:-.4,w:240,a:.09,col:'#ffe9a8'}})}};

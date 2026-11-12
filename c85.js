@@ -1,1 +1,0 @@
-C[85]=()=>{newTL();const ps=K.pylonScene({n:3,glow:[160,107,255],pcol:[7,6,12],arcs:true,pulses:2}),mo=K.motes({col:[160,107,255],n:50,a:.4,seed:85});draw=()=>{clear();K.bg('#0B0914','#1f1536',0);K.radial(W/2,H*.3,900,[160,107,255],.2);mo(1);ctx.save();ctx.translate(W/2,H);ctx.scale(1.35,1.35);ctx.translate(-W/2,-H*.95);ps(1);ctx.restore();K.finish({bl:1,vg:.65,ch:2})}};

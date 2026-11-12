@@ -1,2 +1,0 @@
-C[14]=()=>{newTL();const br=K.brackets([95,180,255],.75,80,90),r=K.rings(W/2,H/2,300,{col:[95,180,255],n:2,a:.55,w:2});
- draw=()=>{clear();K.bg('#07162E','#0d2b55',.5);K.radial(W/2,H/2,800,[60,130,230],.25);r(1);br(1);const th=LOOP(now());fxStreakFlare(W/2+Math.sin(th)*400,H/2,600,.18,'#9cf');K.finish({bl:.7,vg:.7})}};

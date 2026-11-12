@@ -1,2 +1,0 @@
-C[84]=()=>{newTL();const D=DUR/1000,g=K.intro(D),p={v:0};A(p,{v:0},{v:1},.5,3.6,'power1.out');const b=K.infoTri({});
- draw=()=>{clear();K.bg("#F6F9FF","#E3ECFA",0);ctx.globalAlpha=g.f;b(p.v);ctx.globalAlpha=1;K.finish({bl:0,vg:.1,gr:.02});K.fade(g.f)}};

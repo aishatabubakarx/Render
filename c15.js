@@ -1,5 +1,0 @@
-C[15]=()=>{newTL();const D=DUR/1000,g=K.intro(D),b={v:0,l:0,c:0};A(b,{v:0},{v:1},1.2,D*.55,'power1.inOut');A(b,{l:0},{l:1},1.2,D*.55,'none');tl.fromTo(b,{c:0},{c:1,duration:.8,ease:'elastic.out(1,.5)',immediateRender:false},1.2+D*.55);const pad=K.H.padlock({x:620,y:H/2,s:250,col:[25,240,200]}),mo=K.motes({col:[25,240,200],n:40,a:.25});
- draw=()=>{clear();K.bg('#07100F','#031a18',.2);ctx.globalAlpha=g.f;mo(1);K.radial(620,H/2,520,[25,240,200],.18+.25*b.c);pad(1,b.c);const s='ENCRYPTING',n=Math.floor(clamp((now()/1000-.6)/.12,0,s.length)),done=b.c>.5;
-  txt(done?'LOCKED':s.slice(0,n)+(Math.floor(now()/400)%2?'_':''),1020,H/2-70,{f:'JetBrains Mono',w:700,size:66,al:'left',fill:done?'#19F0C8':'#fff',ls:6,glow:[['rgba(25,240,200,.8)',24]]});
-  ctx.fillStyle='rgba(25,240,200,.18)';ctx.fillRect(1020,H/2,640,14);ctx.fillStyle='#19F0C8';ctx.shadowColor='#19F0C8';ctx.shadowBlur=18*S;ctx.fillRect(1020,H/2,640*b.v,14);ctx.shadowBlur=0;
-  txt(Math.round(b.v*100)+'%  AES-256 '+(done?'SEALED':'WORKING'),1020,H/2+62,{f:'JetBrains Mono',w:700,size:28,al:'left',fill:'rgba(255,255,255,.65)',ls:3});ctx.globalAlpha=1;K.finish({bl:.7,vg:.6,ls:.1});K.fade(g.f)}};

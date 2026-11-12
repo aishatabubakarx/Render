@@ -1,1 +1,0 @@
-C[56]=()=>{newTL();const ps=K.pylonScene({wf:true,glow:[57,255,136],pulses:3,lit:[200,255,220]}),dt=K.dots({col:[57,255,136],gap:90,a:.12});draw=()=>{clear();K.bg('#000000','#021a0b',0);dt(1);ps(1);ctx.save();ctx.strokeStyle='rgba(57,255,136,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,H*.88);ctx.lineTo(W,H*.88);ctx.stroke();ctx.restore();K.finish({bl:1,vg:.6,ch:1})}};

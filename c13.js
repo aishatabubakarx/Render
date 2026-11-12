@@ -1,2 +1,0 @@
-C[13]=()=>{newTL();const D=DUR/1000,g=K.intro(D),pp={v:0};A(pp,{v:0},{v:1},.8,D*.45,'power2.out');const mp=K.H.india({x:1150,k:26,tri:false,col:[127,224,255],towers:true}),cir=K.circuit({col:[122,92,255],seed:13,n:30,a:.4,area:[0,0,760,H],pn:1});
- draw=()=>{clear();K.bg('#040A1E','#0B1240',.5);ctx.globalAlpha=g.f;cir(sm(0,3,now()/1000));mp(pp.v);ctx.globalAlpha=1;K.finish({bl:.8,vg:.55});K.fade(g.f)}};

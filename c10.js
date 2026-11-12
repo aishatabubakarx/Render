@@ -1,2 +1,0 @@
-C[10]=()=>{newTL();const gr=K.pgrid({col:[0,200,255],hy:H*.45,speed:15}),bn=K.binary({col:[120,200,255],dir:'l',a:.5,seed:10,layers:2,area:[0,H*.72,W,H*.28]}),mo=K.motes({col:[80,160,255],n:40,a:.3,seed:3});
- draw=()=>{clear();K.bg('#020A30','#0A3DCE',0);K.radial(W/2,H*.45,900,[40,140,255],.5);mo(1);gr(1);bn(1);K.finish({bl:.8,vg:.5})}};

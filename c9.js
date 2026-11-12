@@ -1,2 +1,0 @@
-C[9]=()=>{newTL();const D=DUR/1000,g=K.intro(D),pp={v:0};A(pp,{v:0},{v:1},1,D*.5,'power1.inOut');const mp=K.H.india({k:27,order:[0,1,2,3,4,5,6,7,8,9,10]}),dt=K.dots({col:[120,150,255],gap:64,a:.15,wave:true});
- draw=()=>{clear();K.bg('#05102B','#02040F',.0);ctx.globalAlpha=g.f;dt(1);mp(pp.v);ctx.globalAlpha=1;K.finish({bl:.8,vg:.55});K.fade(g.f)}};

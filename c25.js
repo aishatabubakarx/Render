@@ -1,5 +1,0 @@
-C[25]=()=>{newTL();const IC=['heart','chat','like','share','bell','star'],CC=[[255,61,165],[61,139,255]];
- draw=()=>{clear();K.bg('#070A22','#12083a',.4);const th=LOOP(now()),cx=W/2,cy=H/2,R1=170,R2=70,N1=24,N2=10,a1=th*6/N1;K.radial(cx,cy,700,[61,139,255],.18);
-  for(let i=0;i<6;i++){const phi=-Math.PI/2+i*TAU/6,d=R1*(1.16)+R2*1.16+4,gx=cx+Math.cos(phi)*d,gy=cy+Math.sin(phi)*d,a2=-a1*N1/N2+(1+N1/N2)*phi+Math.PI/N2,c=CC[i%2];
-   ctx.save();ctx.strokeStyle=rgba(c,.35);ctx.lineWidth=2;ctx.beginPath();ctx.arc(gx,gy,R2*1.5,0,TAU);ctx.stroke();ctx.restore();K.gear(gx,gy,R2,N2,a2,c,{fill:c,w:4,hole:.55});const pop=1+.18*Math.max(0,Math.sin(th*30-i*1.05))**4;ctx.save();ctx.translate(gx,gy);ctx.scale(pop,pop);ctx.shadowColor=rgba(c,1);ctx.shadowBlur=20*S;K.glyph[IC[i]](56,'#fff');ctx.restore()}
-  K.gear(cx,cy,R1,N1,a1,[61,139,255],{fill:[61,139,255],w:6,hole:.45});K.gear(cx,cy,R1*.3,8,-a1*2,[255,61,165],{w:4,hole:0});K.finish({bl:.85,vg:.55})}};

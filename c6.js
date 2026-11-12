@@ -1,3 +1,0 @@
-C[6]=()=>{newTL();const D=DUR/1000,g=K.intro(D),lk={v:0};A(lk,{v:0},{v:1},1.2,1.1,'none');const pad=K.H.padlock({s:300}),cir=K.circuit({col:[0,200,255],seed:6,n:40,a:.45,pn:2}),sh={x:0};
- tl.fromTo(sh,{x:0},{x:1,duration:.35,ease:'power2.out',immediateRender:false},1.9);
- draw=()=>{clear();K.bg('#06101f','#02060d',.2);const k=sh.x>0&&sh.x<1?Math.sin(sh.x*30)*(1-sh.x)*2:0;ctx.save();ctx.translate(k,k*.6);ctx.globalAlpha=g.f;cir(sm(0,1.5,now()/1000)*lk.v+.0);K.radial(W/2,H/2,520,[0,200,255],.3*lk.v);pad(1,ez('elastic.out(1,.5)',lk.v));ctx.restore();ctx.globalAlpha=1;K.finish({bl:.8,vg:.55});K.fade(g.f)}};

@@ -1,2 +1,0 @@
-C[20]=()=>{newTL();const ps=K.pylonScene({}),dt=K.dots({col:[0,160,255],gap:70,a:.25});
- draw=()=>{clear();K.bg('#06183A','#0A3A7A',0);K.radial(W/2,H*.5,1000,[0,140,255],.25);dt(1);ps(1);const g=ctx.createLinearGradient(0,H*.86,0,H);g.addColorStop(0,'#03060f');g.addColorStop(1,'#000');ctx.fillStyle=g;ctx.fillRect(0,H*.86,W,H);K.finish({bl:.8,vg:.55})}};

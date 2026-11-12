@@ -1,4 +1,0 @@
-C[17]=()=>{newTL();const D=DUR/1000,g=K.intro(D),T=K.tracePath(17,100,40),pr={d:0};A(pr,{d:0},{d:T.L*.9},0,D,'power1.inOut');const board=K.circuit({col:[255,170,60],seed:5,n:260,a:.32,area:[-1500,-1000,5000,3200],packets:false,gridsz:100});
- draw=()=>{clear();K.bg('#0A0D14','#14100A',.3);const [px,py]=T.at(pr.d);ctx.save();ctx.translate(W/2-px,H/2-py);ctx.globalAlpha=g.f;board(1);ctx.strokeStyle='rgba(255,170,60,.3)';ctx.lineWidth=5;ctx.beginPath();T.pts.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.stroke();
-  ctx.globalCompositeOperation='lighter';ctx.lineCap='round';for(let k=0;k<26;k++){const a=T.at(pr.d-k*28),b=T.at(pr.d-k*28-28);ctx.strokeStyle=`rgba(255,${200-k*3},120,${(1-k/26)**1.4})`;ctx.lineWidth=9*(1-k/40);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke()}
-  ctx.drawImage(spr([255,200,120],128),px-90,py-90,180,180);ctx.restore();K.finish({bl:.9,vg:.6});K.fade(g.f)}};

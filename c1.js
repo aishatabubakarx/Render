@@ -1,2 +1,0 @@
-C[1]=()=>{newTL();const bin=K.binary({col:[0,229,255],dir:'l',a:.34,seed:1}),cl=K.H.cloud({x:W/2,y:H/2-40,s:340,items:'docs'}),r1=K.rings(W/2,H/2-40,470,{col:[0,229,255],n:4,a:.5});
- draw=()=>{clear();K.bg('#020B24','#0A2A8A',.3);K.radial(W/2,H/2,900,[0,120,255],.25);bin(1);r1(1);cl(1);K.finish({bl:.6,vg:.55,gr:.03,ch:1.2})}};
