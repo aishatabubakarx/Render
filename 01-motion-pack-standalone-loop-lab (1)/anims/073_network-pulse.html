@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Network Pulse – 15 second loop</title>
+<style>
+:root{color-scheme:dark;--bg:#07090f;--panel:#121726;--ink:#eaf0fa;--muted:#8f9bb5;--accent:#4fd8f5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef1f7;--panel:#ffffff;--ink:#182033;--muted:#586178;--accent:#0b7f9a;color-scheme:light}}
+:root[data-theme="dark"]{--bg:#07090f;--panel:#121726;--ink:#eaf0fa;--muted:#8f9bb5;--accent:#4fd8f5}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;display:flex;justify-content:center;padding:20px 14px}
+.wrap{width:100%;max-width:1080px}
+h1{font-size:1.25rem;font-weight:600;margin:0 0 4px}
+p.sub{margin:0 0 14px;color:var(--muted);font-size:.92rem}
+.stage{border-radius:10px;overflow:hidden;background:#000;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+canvas{display:block;width:100%;height:auto;aspect-ratio:16/9}
+.bar{display:flex;align-items:center;gap:12px;background:var(--panel);padding:10px 14px;border-radius:10px;margin-top:12px;font-family:system-ui,sans-serif}
+button{background:var(--accent);color:#04121a;border:0;border-radius:8px;padding:8px 14px;font-size:.9rem;cursor:pointer;min-width:84px;font-weight:600}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--muted);min-width:0;font-weight:400}
+button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+input[type=range]{flex:1;accent-color:var(--accent)}
+.time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.85rem;min-width:84px;text-align:right}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Network pulse</h1>
+  <p class="sub">A seamless 15-second loop: glowing nodes and links drift across a dark field while data pulses travel between them.</p>
+  <div class="stage"><canvas id="c" width="1280" height="720" aria-label="Animation of glowing network nodes and links drifting across a dark background"></canvas></div>
+  <div class="bar">
+    <button id="play">Pause</button>
+    <input id="seek" type="range" min="0" max="15" step="0.01" value="0" aria-label="Seek">
+    <span class="time" id="time">0:00 / 0:15</span>
+    <button class="ghost" id="loop" aria-pressed="true">Loop on</button>
+  </div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('c'),ctx=cv.getContext('2d'),W=1280,H=720,DUR=15,TAU=Math.PI*2;
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* glow sprites: cyan, violet, amber */
+function sprite(rgb){
+  var c=document.createElement('canvas');c.width=c.height=96;var g=c.getContext('2d');
+  var gr=g.createRadialGradient(48,48,0,48,48,48);
+  gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.14,'rgba('+rgb+',.95)');gr.addColorStop(.4,'rgba('+rgb+',.28)');gr.addColorStop(1,'rgba('+rgb+',0)');
+  g.fillStyle=gr;g.fillRect(0,0,96,96);return c;
+}
+var SP=[sprite('94,226,255'),sprite('150,130,255'),sprite('255,184,107')];
+
+/* nodes: every motion is periodic over 15 s, so the loop is seamless */
+var r=rng(2026),N=160,nodes=[];
+for(var i=0;i<N;i++){
+  var z=r(),hub=r()<.1;
+  nodes.push({bx:r()*W,by:60+r()*(H-120),z:z,k:z>.5?2:1,rx:20+r()*70,ry:20+r()*90,fx:1+Math.floor(r()*3),fy:1+Math.floor(r()*3),px:r()*TAU,py:r()*TAU,hub:hub,col:hub?2:(r()<.3?1:0),ph:r()*TAU,x:0,y:0,a:0});
+}
+var dust=[];for(var i=0;i<130;i++)dust.push({x:r()*W,y:r()*H,s:.5+r()*1.2,p:r()*TAU,k:r()<.5?1:2});
+
+function place(t){
+  var u=t/DUR;
+  for(var i=0;i<N;i++){
+    var n=nodes[i];
+    var x=n.bx+n.k*W*u+n.rx*Math.sin(TAU*n.fx*u+n.px);
+    x=((x%W)+W)%W;
+    n.x=x;n.y=n.by+n.ry*Math.sin(TAU*n.fy*u+n.py);
+    var e=clamp(Math.min(x,W-x)/150,0,1);e=e*e*(3-2*e);
+    n.a=e*(.35+.65*n.z);
+  }
+}
+
+function draw(t){
+  var u=t/DUR;
+  var bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#010205');bg.addColorStop(1,'#03050b');
+  ctx.globalCompositeOperation='source-over';ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation='lighter';
+  /* slow ambient colour fields */
+  var b1x=W*.3+Math.sin(TAU*u)*140,b1y=H*.4+Math.cos(TAU*u)*60;
+  var g1=ctx.createRadialGradient(b1x,b1y,0,b1x,b1y,520);g1.addColorStop(0,'rgba(40,120,170,.07)');g1.addColorStop(1,'rgba(40,120,170,0)');ctx.fillStyle=g1;ctx.fillRect(0,0,W,H);
+  var b2x=W*.74+Math.cos(TAU*u)*160,b2y=H*.62+Math.sin(TAU*u)*70;
+  var g2=ctx.createRadialGradient(b2x,b2y,0,b2x,b2y,560);g2.addColorStop(0,'rgba(90,60,190,.07)');g2.addColorStop(1,'rgba(90,60,190,0)');ctx.fillStyle=g2;ctx.fillRect(0,0,W,H);
+  /* dust */
+  for(var d=0;d<dust.length;d++){
+    var p=dust[d],x=(((p.x+p.k*W*u*.5*2/ p.k)%W)+W)%W;
+    ctx.fillStyle='rgba(170,210,255,'+(.12+.12*Math.sin(TAU*2*u+p.p))+')';
+    ctx.fillRect(x,p.y,p.s,p.s);
+  }
+  /* data sweep: one pass per loop */
+  var wx=-260+u*(W+520);
+  var sw=ctx.createLinearGradient(wx-260,0,wx+260,0);sw.addColorStop(0,'rgba(94,226,255,0)');sw.addColorStop(.5,'rgba(94,226,255,.07)');sw.addColorStop(1,'rgba(94,226,255,0)');
+  ctx.fillStyle=sw;ctx.fillRect(wx-260,0,520,H);
+  place(t);
+  function boost(x){var q=(x-wx)/170;return Math.exp(-q*q)}
+  /* links */
+  ctx.lineCap='round';
+  for(var i=0;i<N;i++){
+    var a=nodes[i];if(a.a<.02)continue;
+    for(var j=i+1;j<N;j++){
+      var b=nodes[j];if(b.k!==a.k||b.a<.02||Math.abs(a.z-b.z)>.4)continue;
+      var dx=b.x-a.x,dy=b.y-a.y,dist=Math.sqrt(dx*dx+dy*dy),lim=145+50*a.z;
+      if(dist>lim)continue;
+      var f=1-dist/lim,mx=(a.x+b.x)/2,bo=boost(mx);
+      var al=Math.pow(f,1.4)*.5*Math.min(a.a,b.a)*(1+2.4*bo);
+      ctx.strokeStyle=((i+j)%5===0?'rgba(160,140,255,':'rgba(110,215,255,')+clamp(al,0,.95)+')';
+      ctx.lineWidth=.6+a.z*.9+bo*1.1;
+      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+      /* travelling data packet */
+      var h=((i*73+j*151)%97)/97;
+      if(h<.3){
+        var per=DUR/(5+Math.floor(h*13)),ph=((t/per)+h*10)%1,q=(i+j)%2?ph:1-ph;
+        var px=a.x+dx*q,py=a.y+dy*q,sz=14+a.z*10,pa=Math.sin(Math.PI*ph)*Math.min(a.a,b.a)*1.2;
+        ctx.globalAlpha=clamp(pa,0,1);ctx.drawImage(SP[0],px-sz/2,py-sz/2,sz,sz);ctx.globalAlpha=1;
+      }
+    }
+  }
+  /* nodes */
+  for(var i=0;i<N;i++){
+    var n=nodes[i];if(n.a<.02)continue;
+    var br=1+.25*Math.sin(TAU*3*u+n.ph),bo=boost(n.x);
+    var sz=(n.hub?46:20+n.z*18)*br*(1+.5*bo);
+    ctx.globalAlpha=clamp(n.a*(n.hub?1.1:.9)+bo*.4*n.a,0,1);
+    ctx.drawImage(SP[n.col],n.x-sz/2,n.y-sz/2,sz,sz);
+    if(n.hub){ /* expanding ring on hubs */
+      var rp=((u*3+n.ph/TAU)%1);
+      ctx.globalAlpha=(1-rp)*.35*n.a;ctx.strokeStyle='rgba(255,184,107,1)';ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.arc(n.x,n.y,10+rp*46,0,TAU);ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+  }
+  /* vignette */
+  ctx.globalCompositeOperation='source-over';
+  var v=ctx.createRadialGradient(W/2,H/2,H*.45,W/2,H/2,H*1.05);v.addColorStop(0,'rgba(0,0,2,0)');v.addColorStop(1,'rgba(0,0,2,.75)');
+  ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
+}
+
+/* player */
+var play=document.getElementById('play'),seek=document.getElementById('seek'),tm=document.getElementById('time'),lp=document.getElementById('loop');
+var t=0,playing=!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches),looping=true,last=null;
+function fmt(x){return '0:'+('0'+Math.floor(x)).slice(-2)}
+function ui(){play.textContent=playing?'Pause':(t>=DUR?'Replay':'Play');seek.value=t;tm.textContent=fmt(t)+' / 0:15';lp.textContent=looping?'Loop on':'Loop off';lp.setAttribute('aria-pressed',looping)}
+function frame(now){
+  if(last===null)last=now;var dt=(now-last)/1000;last=now;
+  if(playing){t+=dt;if(t>=DUR){if(looping){t=t%DUR}else{t=DUR;playing=false}}}
+  draw(Math.min(t,DUR));ui();requestAnimationFrame(frame);
+}
+play.onclick=function(){if(t>=DUR)t=0;playing=!playing};
+seek.oninput=function(){t=parseFloat(seek.value)};
+lp.onclick=function(){looping=!looping};
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

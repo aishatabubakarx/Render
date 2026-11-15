@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fire Sparks Preview 15s</title>
+<style>
+  :root { color-scheme: dark; --bg: #000; --fg: #cfd8e3; --line: rgba(255,255,255,.18); }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; background: #000; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px;
+         padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); color: var(--fg); font-size: 13px; opacity: .55; transition: opacity .2s; }
+  .bar:hover { opacity: 1; }
+  button { background: none; border: 1px solid var(--line); color: var(--fg); border-radius: 6px; padding: 4px 10px; font: inherit; cursor: pointer; }
+  .track { flex: 1; height: 2px; background: var(--line); position: relative; }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--fg); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar">
+  <button id="pp">Pause</button>
+  <button id="rs">Restart</button>
+  <div class="track"><div class="fill" id="fill"></div></div>
+  <span id="tm">0.0 / 15.0 s</span>
+</div>
+<script>
+(function () {
+  var DUR = 15;
+  var cv = document.getElementById('c');
+  var ctx = cv.getContext('2d');
+  var W = 0, H = 0, dpr = 1;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  var seed = 20261114;
+  function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
+
+  var sparks = [];
+  var N = 120;
+  for (var i = 0; i < N; i++) {
+    var layer = rnd();                                        // 0 far, 1 near
+    sparks.push({
+      x: 0.08 + rnd() * 0.84,                                 // spawn spread across the width
+      phase: rnd(),
+      cycles: layer > 0.65 ? 2 : (layer > 0.3 ? 3 : 4),       // integer cycles per 15s keeps the loop seamless
+      size: 0.6 + layer * 1.5,
+      rise: 0.42 + rnd() * 0.2,                               // how far up the screen it travels (fraction of height)
+      swayAmp: 10 + rnd() * 30,
+      swayK: 1 + Math.floor(rnd() * 3),
+      swayPh: rnd() * Math.PI * 2,
+      flK: 10 + Math.floor(rnd() * 25),                       // flicker cycles per 15s
+      flPh: rnd() * Math.PI * 2,
+      alpha: 0.45 + layer * 0.5
+    });
+  }
+
+  function pos(s, p, t) {
+    var e = 1 - Math.pow(1 - p, 1.7);                         // fast launch, slowing as it cools
+    var y = H * (1.03 - e * s.rise);
+    var drift = Math.sin(2 * Math.PI * s.swayK * t / DUR + s.swayPh) * s.swayAmp * (0.3 + p);
+    var x = s.x * W + drift;
+    return { x: x, y: y };
+  }
+
+  function color(p, a) {
+    // white-yellow at launch, orange mid-rise, deep red as it dies
+    var r, g, b;
+    if (p < 0.35) { var k = p / 0.35; r = 255; g = 238 - k * 78; b = 190 - k * 140; }
+    else { var k2 = (p - 0.35) / 0.65; r = 255 - k2 * 55; g = 160 - k2 * 105; b = 50 - k2 * 30; }
+    return 'rgba(' + Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b) + ',' + a.toFixed(3) + ')';
+  }
+
+  function draw(t) {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+    var g = Math.max(0, Math.min(1, t / 1.0, (DUR - t) / 1.0));
+    ctx.lineCap = 'round';
+
+    for (var i = 0; i < sparks.length; i++) {
+      var s = sparks[i];
+      var p = ((t / DUR) * s.cycles + s.phase) % 1;
+      var env = Math.min(1, p / 0.06) * Math.pow(Math.max(0, 1 - p), 1.4);   // fully faded before reaching the top
+      var fl = 0.6 + 0.4 * Math.sin(2 * Math.PI * s.flK * t / DUR + s.flPh);
+      var a = s.alpha * env * fl * g;
+      if (a <= 0.004) continue;
+
+      var cur = pos(s, p, t);
+      var pPrev = Math.max(0, p - 0.012);
+      var prev = pos(s, pPrev, t);
+
+      // short motion streak
+      ctx.beginPath();
+      ctx.strokeStyle = color(p, a * 0.55);
+      ctx.lineWidth = s.size * 0.9;
+      ctx.moveTo(prev.x, prev.y);
+      ctx.lineTo(cur.x, cur.y);
+      ctx.stroke();
+
+      // hot core
+      ctx.beginPath();
+      ctx.fillStyle = color(p * 0.7, a);
+      ctx.arc(cur.x, cur.y, s.size, 0, Math.PI * 2);
+      ctx.fill();
+
+      // tight warm halo
+      ctx.beginPath();
+      ctx.fillStyle = color(p, a * 0.14);
+      ctx.arc(cur.x, cur.y, s.size * 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  var playing = true, tNow = 0, last = performance.now();
+  var pp = document.getElementById('pp'), rs = document.getElementById('rs');
+  var fill = document.getElementById('fill'), tm = document.getElementById('tm');
+
+  function frame(now) {
+    var dt = (now - last) / 1000; last = now;
+    if (playing) { tNow += dt; if (tNow >= DUR) tNow = tNow % DUR; }
+    draw(tNow);
+    fill.style.width = (tNow / DUR * 100) + '%';
+    tm.textContent = tNow.toFixed(1) + ' / ' + DUR.toFixed(1) + ' s';
+    requestAnimationFrame(frame);
+  }
+  pp.onclick = function () { playing = !playing; pp.textContent = playing ? 'Pause' : 'Play'; };
+  rs.onclick = function () { tNow = 0; };
+  requestAnimationFrame(function (n) { last = n; frame(n); });
+})();
+</script>
+</body>
+</html>

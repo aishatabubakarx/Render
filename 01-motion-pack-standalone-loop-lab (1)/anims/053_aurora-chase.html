@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aurora Chase – 15 s Loop</title>
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--ink:#cfeaff;--dim:#5f86ad}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:#000;color:var(--ink);font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px}
+#stage{position:relative;width:100%;max-width:1280px;aspect-ratio:16/9;background:#000;overflow:hidden;border:1px solid #0e2a45}
+canvas{width:100%;height:100%;display:block}
+.bar{width:100%;max-width:1280px;display:flex;align-items:center;gap:14px}
+button{background:#06192e;color:var(--ink);border:1px solid #1d5f9e;padding:8px 18px;font:inherit;font-size:16px;letter-spacing:.08em;cursor:pointer;min-width:84px}
+button:hover{background:#0b2a4b}
+button:focus-visible,input:focus-visible{outline:2px solid #7fd0ff;outline-offset:2px}
+input[type=range]{flex:1;accent-color:#9fd8ff}
+#tm{font-variant-numeric:tabular-nums;color:var(--dim);min-width:84px;text-align:right}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="cv"></canvas></div>
+<div class="bar">
+  <button id="pp" aria-label="Play or pause">Pause</button>
+  <input id="sc" type="range" min="0" max="15" step="0.01" value="0" aria-label="Timeline">
+  <span id="tm">0.0 s</span>
+</div>
+<script>
+(function(){
+const T=15,TAU=Math.PI*2,cv=document.getElementById('cv'),g=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1280,H=720,dpr=1,S=1;
+function size(){dpr=Math.min(devicePixelRatio||1,2);W=stage.clientWidth;H=stage.clientHeight;S=H/720;cv.width=W*dpr;cv.height=H*dpr;}
+addEventListener('resize',size);size();
+let sd=21;const rnd=()=>{sd|=0;sd=sd+0x6D2B79F5|0;let t=Math.imul(sd^sd>>>15,1|sd);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+
+/* soft glow dots */
+function glow(r,gc,b){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),gr=x.createRadialGradient(32,32,0,32,32,32);
+ gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.18,`rgba(${Math.min(255,r+60)},${Math.min(255,gc+40)},255,.9)`);gr.addColorStop(.5,`rgba(${r},${gc},${b},.25)`);gr.addColorStop(1,`rgba(${r},${gc},${b},0)`);
+ x.fillStyle=gr;x.fillRect(0,0,64,64);return c;}
+let sd2=9;const rn=()=>{sd2|=0;sd2=sd2+0x6D2B79F5|0;let t=Math.imul(sd2^sd2>>>15,1|sd2);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+const pick=r=>r<.6?0:r<.85?1:2;
+const GLY=(()=>{const c=document.createElement('canvas');c.width=c.height=72;const x=c.getContext('2d');x.translate(36,36);x.lineCap='round';x.strokeStyle='#f4fbff';x.shadowColor='rgba(150,215,255,1)';x.shadowBlur=6;
+ for(let a=0;a<6;a++){x.save();x.rotate(a*Math.PI/3);x.lineWidth=3;x.beginPath();x.moveTo(0,0);x.lineTo(0,-28);x.stroke();x.lineWidth=2.2;x.beginPath();x.moveTo(0,-15);x.lineTo(-8,-23);x.moveTo(0,-15);x.lineTo(8,-23);x.stroke();x.restore();}
+ return c;})();
+const WH=glow(205,232,255);
+const CFG={heads:3,subs:2,n:330,haze:200,tw:8,amp:16,fall:14,
+ pal:[[glow(170,255,240),glow(40,210,200),glow(180,255,200)],[glow(225,200,255),glow(150,100,255),glow(255,170,255)],[glow(255,210,230),glow(255,90,170),glow(255,180,120)]],
+ at:(i,v)=>{const a=TAU*(v+i/3);return[W/2+.4*W*Math.cos(a),H/2+H*(.2*Math.sin(a)+.1*Math.sin(3*a+.6)),0];}};
+/* Every speck is dropped at a comet head, then stays where it was left, drifting, twinkling and fading.
+   K*TL = 1 and every cycle count is a whole number, so the loop is seamless. */
+const K=5,TL=.2,NH=CFG.heads,NS=CFG.subs,TW=CFG.tw,AMP=CFG.amp;
+const mk=(i,sb,wide)=>({i,sb,ph:rn(),ja:rn()*TAU,jr:2+rn()*12*wide,da:rn()*TAU,dd:8+rn()*42*wide,tf:3+Math.floor(rn()*9),tp:rn(),sz:.5+Math.pow(rn(),2.2)*2.4,cls:pick(rn()),gly:rn()<.1,rot:rn()*TAU,rs:rn()<.5?-1:1});
+const SPK=[];for(let i=0;i<NH;i++){for(let sb=0;sb<NS;sb++)for(let j=0;j<CFG.n;j++)SPK.push(mk(i,sb,1));for(let j=0;j<CFG.haze;j++)SPK.push(mk(i,-1,3));}
+const nrm=(i,v)=>{const e=.002,p0=CFG.at(i,v-e,1),p1=CFG.at(i,v+e,1),dx=p1[0]-p0[0],dy=p1[1]-p0[1],l=Math.hypot(dx,dy)||1;return[-dy/l,dx/l];};
+function flare(x,y,L,a){g.strokeStyle=`rgba(240,250,255,${a})`;g.lineWidth=Math.max(1,S);g.beginPath();
+ g.moveTo(x-L,y);g.lineTo(x+L,y);g.moveTo(x,y-L);g.lineTo(x,y+L);const q=L*.55;g.moveTo(x-q,y-q);g.lineTo(x+q,y+q);g.moveTo(x-q,y+q);g.lineTo(x+q,y-q);g.stroke();}
+function draw(t){
+ const u=t/T;g.setTransform(dpr,0,0,dpr,0,0);g.globalCompositeOperation='source-over';g.fillStyle='#000';g.fillRect(0,0,W,H);
+ g.globalCompositeOperation='lighter';
+ SPK.forEach(s=>{
+  const age=(K*u+s.ph)%1,v=u-age*TL,P=CFG.at(s.i,v,age),pal=CFG.pal[s.i],z=P[2]||0;let x=P[0],y=P[1];
+  if(s.sb>=0){const n=nrm(s.i,v),off=AMP*S*Math.sin(TAU*(TW*v+s.sb/NS+s.i*.17))*(.35+.65*Math.min(1,age/.35));x+=n[0]*off;y+=n[1]*off;}
+  const sp=.35+age;x+=Math.cos(s.ja)*s.jr*S*sp+Math.cos(s.da)*s.dd*S*age;y+=Math.sin(s.ja)*s.jr*S*sp+Math.sin(s.da)*s.dd*S*age+CFG.fall*S*age*age;
+  const fade=Math.min(1,age/.1)*Math.pow(1-age,1.3),tw=Math.pow(.5+.5*Math.sin(TAU*(u*s.tf+s.tp)),5);
+  const a=fade*(.2+.8*tw)*(s.sb<0?.55:1)*(.6+.2*(z+1));if(a<.012)return;
+  const tpr=.5+.5*Math.min(1,age/.2),r=s.sz*S*(1+tw*1.2)*(1-.35*age)*tpr*(1+.3*z);
+  g.globalAlpha=a;
+  if(s.gly){const w=(7+s.sz*3)*S*(1+tw*.5)*tpr;g.save();g.translate(x,y);g.rotate(s.rot+TAU*s.rs*u);g.drawImage(GLY,-w/2,-w/2,w,w);g.restore();}
+  else g.drawImage(pal[s.cls===0&&age>.5?1:s.cls],x-r*2,y-r*2,r*4,r*4);
+  if(tw>.85&&a>.15)flare(x,y,r*(2+3*(tw-.85)/.15),a);
+ });
+ if(CFG.extra)CFG.extra(u);
+ g.globalAlpha=1;g.globalCompositeOperation='source-over';
+}
+
+const pb=document.getElementById('pp'),sc=document.getElementById('sc'),tm=document.getElementById('tm');
+let t=0,playing=true,last=performance.now(),drag=false;
+pb.onclick=()=>{playing=!playing;pb.textContent=playing?'Pause':'Play';};
+sc.addEventListener('input',()=>{drag=true;t=parseFloat(sc.value);});
+sc.addEventListener('change',()=>{drag=false;});
+(function loop(now){const dt=Math.min(.1,(now-last)/1000);last=now;
+ if(playing&&!drag){t+=dt;if(t>=T)t-=T;}
+ if(!drag)sc.value=t;tm.textContent=t.toFixed(1)+' s';draw(t);requestAnimationFrame(loop);})(last);
+})();
+</script>
+</body>
+</html>

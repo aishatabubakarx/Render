@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Neon Light Rays – 15 s Loop</title>
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--ink:#cfeaff;--dim:#5f86ad}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:#000;color:var(--ink);font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px}
+#stage{position:relative;width:100%;max-width:1280px;aspect-ratio:16/9;background:#000;overflow:hidden;border:1px solid #0e2a45}
+canvas{width:100%;height:100%;display:block}
+.bar{width:100%;max-width:1280px;display:flex;align-items:center;gap:14px}
+button{background:#06192e;color:var(--ink);border:1px solid #1d5f9e;padding:8px 18px;font:inherit;font-size:16px;letter-spacing:.08em;cursor:pointer;min-width:84px}
+button:hover{background:#0b2a4b}
+button:focus-visible,input:focus-visible{outline:2px solid #7fd0ff;outline-offset:2px}
+input[type=range]{flex:1;accent-color:#3aa8ff}
+#tm{font-variant-numeric:tabular-nums;color:var(--dim);min-width:84px;text-align:right}
+#err{display:none;color:#ff9a9a;padding:20px;max-width:1280px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="cv"></canvas></div>
+<div class="bar">
+  <button id="pp" aria-label="Play or pause">Pause</button>
+  <input id="sc" type="range" min="0" max="15" step="0.01" value="0" aria-label="Timeline">
+  <span id="tm">0.0 s</span>
+</div>
+<div id="err"></div>
+
+<script id="fs" type="x-shader/x-fragment">
+precision highp float;
+uniform vec2 uRes;uniform float uU;
+const float TAU=6.2831853;
+float h11(float n){return fract(sin(n*127.1)*43758.5453);}
+vec2 h22(vec2 p){p=vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3)));return fract(sin(p)*43758.5453);}
+float h21(vec2 p){return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5453);}
+/* neon palette: a cosine rainbow, pushed saturated. periodic in v, so hue drift loops */
+vec3 pal(float v){vec3 c=.5+.5*cos(TAU*(v+vec3(0.,.33,.67)));return pow(c,vec3(1.6))*1.5;}
+
+/* wandering light beams: every random-looking motion uses whole-number cycles per loop */
+vec3 beams(vec2 p,float u){
+ vec3 acc=vec3(0.);
+ for(int i=0;i<8;i++){
+  float fi=float(i),h1=h11(fi*1.7+1.),h2=h11(fi*3.1+2.),h3=h11(fi*5.3+3.);
+  float a0=fi*.785+.5*sin(TAU*u*floor(1.+h1*2.)+h2*TAU);
+  vec2 o=2.3*vec2(cos(a0)*1.15,sin(a0)*.8);
+  vec2 tg=vec2(.6*sin(TAU*u*2.+h3*TAU),.4*cos(TAU*u+h2*TAU));
+  vec2 dir=normalize(tg-o);
+  float sw=.38*sin(TAU*u*floor(1.+h2*3.)+h1*TAU),cs=cos(sw),sn=sin(sw);
+  dir=mat2(cs,-sn,sn,cs)*dir;
+  vec2 q=p-o;float al=dot(q,dir),d=abs(q.x*dir.y-q.y*dir.x);
+  float w=.01+.07*clamp(al/2.5,0.,1.);
+  float core=exp(-d*d/(w*w)),halo=exp(-d/(w*7.))*.35;
+  float len=smoothstep(0.,.4,al)*exp(-max(al-1.4,0.)*.9);          // fades into darkness along its length
+  float fl=.5+.5*sin(TAU*u*floor(9.+h3*21.)+h1*TAU);fl*=fl;         // soft flicker, under 3 Hz
+  float st=step(.7,h11(fi+floor(u*20.)*7.13));                      // random flares
+  float env=pow(.5+.5*sin(TAU*u*floor(1.+h2*2.)+h3*TAU+fi),2.);    // fade out to black and back
+  float I=(.2+.8*fl)*(.35+.65*st)*env;
+  vec3 c=pal(h1+al*.22+u+fi*.13);                                   // gradient along the beam
+  acc+=(c*(core*.9+halo)+vec3(core*core*.5))*len*I;
+ }
+ return acc;}
+
+/* flowing neon ribbons */
+vec3 ribbons(vec2 p,float u){
+ float a=TAU*u;
+ float w=sin(p.x*2.6+a+sin(p.y*3.1+2.*a))+.8*sin(p.y*2.2-a+cos(p.x*2.9-a))+sin((p.x+p.y)*1.7+3.*a);
+ float s=exp(-abs(w-.6)*7.)+.7*exp(-abs(w+1.1)*9.);
+ float env=.5+.5*sin(a*2.+p.x*1.3);
+ return pal(w*.25+u)*s*.28*env;}
+
+/* crystal facets: bright voronoi edges with drifting cells */
+vec3 crystal(vec2 p,float u){
+ vec2 g=floor(p),f=fract(p),id1=vec2(0.);float d1=9.,d2=9.;
+ for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){
+  vec2 c=vec2(float(x),float(y)),id=g+c,h=h22(id);
+  vec2 pt=c+.5+.42*sin(TAU*(u*floor(1.+h.x*2.)+h));
+  float d=length(pt-f);
+  if(d<d1){d2=d1;d1=d;id1=id;}else if(d<d2){d2=d;}
+ }
+ return pal(h21(id1)*5.+u)*(exp(-(d2-d1)*14.)*1.2+.08*(1.-d1));}
+
+vec3 leaks(vec2 p,float u){
+ float a=TAU*u,r=length(p),ang=atan(p.y,p.x);
+ float rot=.4*sin(a),c=cos(rot),s=sin(rot);
+ vec2 q=mat2(c,-s,s,c)*p*2.4;
+ float mask=smoothstep(.5,1.7,r)*(.5+.5*sin(ang*3.+a*2.))*(.35+.65*pow(.5+.5*sin(a*3.+ang*2.),2.));
+ return crystal(q,u)*mask*1.1;}
+
+vec3 scene(vec2 p,float u){return beams(p,u);}
+
+void main(){
+ vec2 uv=(gl_FragCoord.xy-.5*uRes)/uRes.y;float u=uU,ph=TAU*u;
+ vec2 p=uv;float r2=dot(p,p);
+ p*=1.+.12*r2*sin(ph*2.+r2*3.);                                              // lens warp
+ p+=.035*vec2(sin(p.y*7.+ph),cos(p.x*6.+2.*ph))*(.5+.5*sin(ph*3.));        // optical ripple
+ vec3 col;                                                                   // chromatic split
+ col.r=scene(p*1.02,u).r;col.g=scene(p,u).g;col.b=scene(p*.98,u).b;
+ col+=ribbons(p,u)+leaks(p,u);
+ col=1.-exp(-col*1.3);
+ gl_FragColor=vec4(pow(col,vec3(.9)),1.);
+}
+</script>
+<script>
+(function(){
+const T=15,cv=document.getElementById('cv'),stage=document.getElementById('stage'),err=document.getElementById('err');
+const gl=cv.getContext('webgl')||cv.getContext('experimental-webgl');
+function fail(m){err.style.display='block';err.textContent=m;}
+if(!gl){fail('WebGL is not available in this browser, so the animation cannot render.');return;}
+function sh(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){fail('Shader error:\n'+gl.getShaderInfoLog(s));throw 0;}return s;}
+let pr;try{
+ pr=gl.createProgram();
+ gl.attachShader(pr,sh(gl.VERTEX_SHADER,'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}'));
+ gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,document.getElementById('fs').textContent));
+ gl.linkProgram(pr);}catch(e){return;}
+gl.useProgram(pr);
+const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+const loc=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+const uRes=gl.getUniformLocation(pr,'uRes'),uU=gl.getUniformLocation(pr,'uU');
+function size(){const d=Math.min(devicePixelRatio||1,1.5);cv.width=Math.round(stage.clientWidth*d);cv.height=Math.round(stage.clientHeight*d);gl.viewport(0,0,cv.width,cv.height);gl.uniform2f(uRes,cv.width,cv.height);}
+addEventListener('resize',size);size();
+const pb=document.getElementById('pp'),sc=document.getElementById('sc'),tm=document.getElementById('tm');
+let t=0,playing=true,last=performance.now(),drag=false;
+pb.onclick=()=>{playing=!playing;pb.textContent=playing?'Pause':'Play';};
+sc.addEventListener('input',()=>{drag=true;t=parseFloat(sc.value);});
+sc.addEventListener('change',()=>{drag=false;});
+(function loop(now){const dt=Math.min(.1,(now-last)/1000);last=now;
+ if(playing&&!drag){t+=dt;if(t>=T)t-=T;}
+ if(!drag)sc.value=t;tm.textContent=t.toFixed(1)+' s';
+ gl.uniform1f(uU,t/T);gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(loop);})(last);
+})();
+</script>
+</body>
+</html>
