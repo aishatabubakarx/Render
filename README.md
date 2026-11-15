@@ -1,17 +1,17 @@
-# 02-master-83
+# 03-100-concepts
 
-Stock Motion Previews Master (clips 136-218)
+100 Commercial Concepts (clips 219-318)
 
-83 clips (0 transparent). Every clip is the original animation code from the preview page, so **what you saw in the preview is what is rendered**:
+100 clips (0 transparent). Every clip is the original animation code from the preview page, so **what you saw in the preview is what is rendered**:
 the code runs in Chromium on a virtual clock, one frame every 1/30 s, and goes straight to ffmpeg. Every render is identical, and every clip is exactly one seamless loop
 (its own loop length: 10, 12, 14, 15, 16 or 20 s). Clip numbers match the numbers in the preview page.
 
 ## Render on GitHub (no install)
 1. Create a new repository and upload everything in this folder (keep the hidden `.github` folder).
 2. Actions tab > **Render stock clips** > **Run workflow**. Pre-set to 1080p / MOV / 30 fps / release. Just press Run.
-   Tip: the first time, type 2 or 3 clip numbers into **ids** to check the result before rendering all 83.
+   Tip: the first time, type 2 or 3 clip numbers into **ids** to check the result before rendering all 100.
 3. When it finishes, open **Releases**: every clip is a `.mov`, plus a JPG thumbnail per clip and `clips.csv` (number, title, loop length, transparent yes/no).
-   83 clips are split over 20 parallel jobs, so the whole pack finishes in about the time of 5 clips.
+   100 clips are split over 20 parallel jobs, so the whole pack finishes in about the time of 5 clips.
 
 ## What you get
 | Clip type | File |
@@ -33,86 +33,103 @@ Check Adobe Stock's current rules before uploading (size, resolution, naming).
 ## Clips in this pack
 | # | Title | Loop | Transparent |
 |---|---|---|---|
-| 136 | Ink Brush Reveal | 12 s |  |
-| 137 | Night Earth City Lights | 16 s |  |
-| 138 | Kinetic Title Light Sweep | 12 s |  |
-| 139 | Floating Likes and Hearts | 14 s |  |
-| 140 | Celebration Confetti Fall | 12 s |  |
-| 141 | Gold Coin Rain Flip | 14 s |  |
-| 142 | Notification Stack Phone UI | 12 s |  |
-| 143 | Parcels Drop Into Pile | 12 s |  |
-| 144 | Rising Growth Bar Chart | 14 s |  |
-| 145 | Radar Sonar Sweep | 14 s |  |
-| 146 | Ten Second Countdown Ring | 10 s |  |
-| 147 | Loading Ring to Success Check | 10 s |  |
-| 148 | Five Star Rating Pop | 10 s |  |
-| 149 | Liquid Color Wipe | 12 s |  |
-| 150 | Hyperspace Warp Streaks | 12 s |  |
-| 151 | Night Fireworks Finale | 14 s |  |
-| 152 | Heartbeat ECG Monitor | 12 s |  |
-| 153 | Gold Lower Third Banner | 10 s |  |
-| 154 | Subscribe Bell Ring | 10 s |  |
-| 155 | Ringed Planet and Satellite | 18 s |  |
-| 156 | Triangle Shard Transition | 10 s |  |
-| 157 | Pulsing Signal Connectivity | 12 s |  |
-| 158 | Neon Wireframe Cube | 14 s |  |
-| 159 | Mirrored Audio Equalizer | 12 s |  |
-| 160 | Glass Play Button Pulse | 12 s |  |
-| 161 | Market Candlestick Climb | 14 s |  |
-| 162 | Location Pin Drop Ripple | 12 s |  |
-| 163 | Interlocking Gear Mechanism | 12 s |  |
-| 164 | Idea Lightbulb Ignite | 10 s |  |
-| 165 | Cyber Shield Verified Scan | 12 s |  |
-| 166 | Startup Rocket Launch | 12 s |  |
-| 167 | Sale Starburst Badge | 10 s |  |
-| 168 | Gift Box Open Burst | 12 s |  |
-| 169 | Typewriter Headline | 12 s |  |
-| 170 | Paper Plane Flight | 12 s |  |
-| 171 | Progress Steps Timeline | 12 s |  |
-| 172 | Voice Assistant Waveform Ring | 12 s |  |
-| 173 | Analog Clock Time Lapse | 14 s |  |
-| 174 | Checklist Tick Off | 12 s |  |
-| 175 | Earth Orbit Sunrise Limb | 16 s |  |
-| 176 | Social Counter Notification Bubble | 10 s |  |
-| 177 | Red Rose Petals Falling | 16 s |  |
-| 178 | Cherry Blossom Petal Wind | 16 s |  |
-| 179 | Delivery Scooter City Ride | 12 s |  |
-| 180 | Gym Dumbbell Lift Rep | 10 s |  |
-| 181 | Phone Tap and Swipe Gesture | 12 s |  |
-| 182 | Performance Speedometer Sweep | 12 s |  |
-| 183 | DNA Double Helix Rotation | 14 s |  |
-| 184 | Wind Turbine Farm Spin | 14 s |  |
-| 185 | Battery Charge Fill | 10 s |  |
-| 186 | Fingerprint Biometric Scan | 12 s |  |
-| 187 | Cloud Upload Data Stream | 12 s |  |
-| 188 | Envelope Open Letter Reveal | 12 s |  |
-| 189 | Magnifier Search Reveal | 12 s |  |
-| 190 | Winner Podium Trophy Reveal | 12 s |  |
-| 191 | Aperture Iris Transition | 10 s |  |
-| 192 | Silk Ribbon Waves | 16 s |  |
-| 193 | Hologram HUD Radar Rings | 14 s |  |
-| 194 | Anamorphic Lens Flare Sweep | 10 s |  |
-| 195 | Volumetric Light Rays Sweep | 14 s |  |
-| 196 | Lightning Strike Flash | 12 s |  |
-| 197 | RGB Glitch Slice Transition | 10 s |  |
-| 198 | Fire Embers Rising | 14 s |  |
-| 199 | Binary Data Rain | 12 s |  |
-| 200 | Revenue Counter Surge | 12 s |  |
-| 201 | Neon OPEN Sign Flicker | 10 s |  |
-| 202 | Snowfall Parallax Pines | 16 s |  |
-| 203 | Gold Sparkle Glints Overlay | 12 s |  |
-| 204 | Blueprint House Draw-On | 14 s |  |
-| 205 | Contactless Payment Success | 12 s |  |
-| 206 | Total Solar Eclipse Corona | 16 s |  |
-| 207 | Vinyl Record Needle Drop | 14 s |  |
-| 208 | Cargo Ship Ocean Voyage | 16 s |  |
-| 209 | Aurora Borealis Over Peaks | 18 s |  |
-| 210 | Passport Visa Stamp Slam | 12 s |  |
-| 211 | Jackpot Slot Reels Win | 14 s |  |
-| 212 | Seedling Growth Time-Lapse | 16 s |  |
-| 213 | Product Showcase Pedestal Spotlight | 14 s |  |
-| 214 | Luxury Perfume Bottle Reveal | 14 s |  |
-| 215 | Latte Art Pour Top View | 14 s |  |
-| 216 | Hourglass Sand Time Flow | 16 s |  |
-| 217 | Smartwatch Activity Rings | 14 s |  |
-| 218 | Brilliant Diamond Light Sweep | 12 s |  |
+| 219 | AI Neural Network Nodes | 14 s |  |
+| 220 | Quantum Core Cube Spin | 12 s |  |
+| 221 | Ransomware Padlock Breach to Lock | 10 s |  |
+| 222 | Biometric Iris Eye Scan | 12 s |  |
+| 223 | Server Rack LED Traffic | 10 s |  |
+| 224 | Zero-Trust Firewall Shield | 12 s |  |
+| 225 | Big Data Pipeline Funnel | 12 s |  |
+| 226 | AI Prompt Typing & Sparkle | 12 s |  |
+| 227 | Facial Recognition Mesh Grid | 12 s |  |
+| 228 | API Webhook Sync Pulse | 10 s |  |
+| 229 | Database Cylinder Sync | 12 s |  |
+| 230 | VPN Encrypted Tunnel | 10 s |  |
+| 231 | DNA CRISPR Gene Edit | 14 s |  |
+| 232 | Microchip Processor Glow | 12 s |  |
+| 233 | Satellite Orbit GPS Ping | 14 s |  |
+| 234 | Crypto Bullish Breakout | 12 s |  |
+| 235 | Stock Ticker Tape Scroll | 10 s |  |
+| 236 | Credit Card Tap NFC | 12 s |  |
+| 237 | Shopping Cart Add Item | 10 s |  |
+| 238 | Flash Sale Countdown Timer | 10 s |  |
+| 239 | ROI Pie Chart Segment Pop | 12 s |  |
+| 240 | Invoice Paid Stamp | 10 s |  |
+| 241 | Global Currency Exchange | 12 s |  |
+| 242 | Gold Bullion Bars Shine | 12 s |  |
+| 243 | SaaS MRR Growth Curve | 12 s |  |
+| 244 | Digital Wallet Balance Up | 10 s |  |
+| 245 | Supply Chain Warehouse Boxes | 12 s |  |
+| 246 | Real Estate Sold Sign | 12 s |  |
+| 247 | Stock Market Bear vs Bull | 12 s |  |
+| 248 | Subscription Tier Upgrade | 10 s |  |
+| 249 | Live Stream REC Pulse | 10 s |  |
+| 250 | YouTube Subscribe Cursor Click | 10 s |  |
+| 251 | Podcast Mic Soundwaves | 12 s |  |
+| 252 | Viral Share Network Spread | 12 s |  |
+| 253 | Lower Third Social Handle | 10 s |  |
+| 254 | Chat Bubble Typing Dots | 10 s |  |
+| 255 | Live Viewer Count Surge | 10 s |  |
+| 256 | Hashtag Trend Cloud | 12 s |  |
+| 257 | Video Timeline Cut & Trim | 12 s |  |
+| 258 | Emoji Reaction Burst | 10 s |  |
+| 259 | 3-2-1 Film Leader Countdown | 10 s |  |
+| 260 | Story Progress Bar Swipe | 10 s |  |
+| 261 | Audio Spectrum Circular | 12 s |  |
+| 262 | Breaking News Alert Banner | 10 s |  |
+| 263 | Camera Viewfinder Focus | 10 s |  |
+| 264 | Solar Panel Sunbeam Charge | 12 s |  |
+| 265 | EV Car Charging Plug | 12 s |  |
+| 266 | CO2 Carbon Footprint Drop | 12 s |  |
+| 267 | Recycling Loop Arrows | 12 s |  |
+| 268 | Hydroelectric Dam Flow | 12 s |  |
+| 269 | Smart Grid Power Lines | 12 s |  |
+| 270 | Rainwater Harvesting Drops | 12 s |  |
+| 271 | Forest Reforestation Sprouts | 12 s |  |
+| 272 | Global Warming Temp Gauge | 12 s |  |
+| 273 | Hydrogen Fuel Cell H2 | 12 s |  |
+| 274 | Ocean Wave Tidal Energy | 14 s |  |
+| 275 | Eco Leaf Battery | 10 s |  |
+| 276 | Smart Thermostat Eco Mode | 10 s |  |
+| 277 | Geothermal Earth Heat | 12 s |  |
+| 278 | Zero Waste Circular Loop | 12 s |  |
+| 279 | DNA Vaccine Antibody | 12 s |  |
+| 280 | Lungs Breathing Expansion | 12 s |  |
+| 281 | Telemedicine Video Call | 10 s |  |
+| 282 | Sleep Cycle Moon & Stars | 14 s |  |
+| 283 | Hydration Water Glass Fill | 10 s |  |
+| 284 | Meditation Breath Circle | 14 s |  |
+| 285 | Microscope Cell Division | 14 s |  |
+| 286 | Mental Health Brain Glow | 12 s |  |
+| 287 | Pill Capsule Dissolve | 12 s |  |
+| 288 | Step Counter 10K Goal | 10 s |  |
+| 289 | Blood Pressure Pulse Wave | 10 s |  |
+| 290 | Eye Vision Test Chart | 10 s |  |
+| 291 | Tooth Whitening Sparkle | 10 s |  |
+| 292 | First Aid Cross Pulse | 10 s |  |
+| 293 | Calorie Burn Flame | 10 s |  |
+| 294 | High-Speed Bullet Train | 12 s |  |
+| 295 | Delivery Drone Drop | 12 s |  |
+| 296 | Autonomous Car Lidar Scan | 12 s |  |
+| 297 | Airplane Flight Path Arc | 12 s |  |
+| 298 | Smart City Skyline Night | 14 s |  |
+| 299 | Traffic Light Green Go | 10 s |  |
+| 300 | GPS Route Navigation | 12 s |  |
+| 301 | Container Crane Port | 12 s |  |
+| 302 | Subway Metro Map Dots | 12 s |  |
+| 303 | Hotel Keycard Door Unlock | 10 s |  |
+| 304 | Boarding Pass QR Scan | 10 s |  |
+| 305 | Weather Forecast Sun & Cloud | 12 s |  |
+| 306 | Compass North Needle | 12 s |  |
+| 307 | EV Supercharger Map Pins | 12 s |  |
+| 308 | SpaceX Rocket Booster Land | 12 s |  |
+| 309 | 4K Geometric Memphis Loop | 12 s |  |
+| 310 | Liquid Gradient Mesh Wave | 14 s |  |
+| 311 | Minimalist Split Text Reveal | 10 s |  |
+| 312 | VHS Retro Scanline Glitch | 10 s |  |
+| 313 | Golden Luxury Dust Particles | 14 s |  |
+| 314 | Corporate Grid Blueprint | 12 s |  |
+| 315 | Neon Cyber Tunnel Grid | 12 s |  |
+| 316 | Smooth Diagonal Wipe | 10 s |  |
+| 317 | Award Laurel Wreath Gold | 12 s |  |
+| 318 | Seamless Isometric Cube Wave | 14 s |  |
