@@ -1,17 +1,17 @@
-# 01-motion-pack-standalone-loop-lab
+# 02-master-83
 
-Motion Pack, standalone animations, Loop Lab (clips 7, 51-77, 403-406, 78-135)
+Stock Motion Previews Master (clips 136-218)
 
-90 clips (22 transparent). Every clip is the original animation code from the preview page, so **what you saw in the preview is what is rendered**:
+83 clips (0 transparent). Every clip is the original animation code from the preview page, so **what you saw in the preview is what is rendered**:
 the code runs in Chromium on a virtual clock, one frame every 1/30 s, and goes straight to ffmpeg. Every render is identical, and every clip is exactly one seamless loop
 (its own loop length: 10, 12, 14, 15, 16 or 20 s). Clip numbers match the numbers in the preview page.
 
 ## Render on GitHub (no install)
 1. Create a new repository and upload everything in this folder (keep the hidden `.github` folder).
 2. Actions tab > **Render stock clips** > **Run workflow**. Pre-set to 1080p / MOV / 30 fps / release. Just press Run.
-   Tip: the first time, type 2 or 3 clip numbers into **ids** to check the result before rendering all 90.
+   Tip: the first time, type 2 or 3 clip numbers into **ids** to check the result before rendering all 83.
 3. When it finishes, open **Releases**: every clip is a `.mov`, plus a JPG thumbnail per clip and `clips.csv` (number, title, loop length, transparent yes/no).
-   90 clips are split over 20 parallel jobs, so the whole pack finishes in about the time of 5 clips.
+   83 clips are split over 20 parallel jobs, so the whole pack finishes in about the time of 5 clips.
 
 ## What you get
 | Clip type | File |
@@ -33,93 +33,86 @@ Check Adobe Stock's current rules before uploading (size, resolution, naming).
 ## Clips in this pack
 | # | Title | Loop | Transparent |
 |---|---|---|---|
-| 7 | Spiral Galaxy Rotation | 15 s | yes |
-| 51 | Glitter Dust Trail | 15 s | yes |
-| 52 | Gold Spiral | 15 s | yes |
-| 53 | Aurora Chase | 15 s | yes |
-| 54 | Orbit Halo | 15 s | yes |
-| 55 | Blue Particles | 15 s | yes |
-| 56 | Blue Particle Flow | 15 s | yes |
-| 57 | Neon Light Rays | 15 s | yes |
-| 58 | Prism Glass | 15 s | yes |
-| 59 | Holographic House | 15 s | yes |
-| 60 | Nigeria Flag Map | 15 s | yes |
-| 61 | Moon Phases | 15 s | yes |
-| 62 | 3D Gold Clock | 15 s | yes |
-| 63 | Dollar Burst Loop | 15 s | yes |
-| 64 | Fire Blast | 15 s | yes |
-| 65 | Fire Blowing | 15 s | yes |
-| 66 | Fire Sparks | 15 s | yes |
-| 67 | Isolated Fire | 15 s | yes |
-| 68 | Maple Leaf Burst Loop | 15 s | yes |
-| 69 | Rising Hearts | 15 s | yes |
-| 70 | Rising Likes | 15 s | yes |
-| 71 | Snow | 15 s | yes |
-| 72 | Morning Flight | 15 s |  |
-| 73 | Network Pulse | 15 s |  |
-| 74 | Winter Ice Frame | 15 s |  |
-| 75 | Winter Ice Frame (Real) | 15 s |  |
-| 76 | Idea Concepts | 15 s |  |
-| 77 | Motion Studio: 3D clips | 15 s |  |
-| 78 | Cash Rain, Chroma Key | 12 s |  |
-| 79 | Citrus Burst on Cyan | 12 s |  |
-| 80 | Delivery Van Street Run | 12 s |  |
-| 81 | Data Particle Terrain | 12 s |  |
-| 82 | Digital City Scan | 12 s |  |
-| 83 | Growth Chart Rise | 12 s |  |
-| 84 | Global Network Pulse | 12 s |  |
-| 85 | Rocket Launch Ascent | 12 s |  |
-| 86 | Sci-Fi HUD Loader | 12 s |  |
-| 87 | Heartbeat Monitor | 12 s |  |
-| 88 | Candlestick Market Run | 12 s |  |
-| 89 | Shopping Cart Drop | 12 s |  |
-| 90 | Sale Starburst Badge | 12 s |  |
-| 91 | Wind Turbines at Dusk | 12 s |  |
-| 92 | Radial Audio Spectrum | 12 s |  |
-| 93 | Hyperspace Light Streaks | 12 s |  |
-| 94 | Day to Night Timelapse | 12 s |  |
-| 95 | Celebration Confetti Cannons | 12 s |  |
-| 96 | Data Center Aisle Flythrough | 12 s |  |
-| 97 | EV Fast Charging Station | 12 s |  |
-| 98 | Steaming Coffee Cup | 12 s |  |
-| 99 | Solar Farm Golden Hour | 12 s |  |
-| 100 | Aurora Over Frozen Lake | 12 s |  |
-| 101 | AI Processor Circuit Pulse | 12 s |  |
-| 102 | Autumn Leaves, Chroma Key | 12 s |  |
-| 103 | Neon Countdown 10 to 1 | 12 s |  |
-| 104 | Thunderstorm Lightning Strike | 12 s |  |
-| 105 | Ocean Sunset Waves | 12 s |  |
-| 106 | Ringed Planet Rotation | 12 s |  |
-| 107 | Snowflake Crystal Growth | 12 s |  |
-| 108 | Spinning Gold Coin | 12 s |  |
-| 109 | Four Seasons Tree | 12 s |  |
-| 110 | Highway Light Trails at Night | 12 s |  |
-| 111 | Lotus Bloom at Night | 12 s |  |
-| 112 | Koi Pond Top View | 12 s |  |
-| 113 | Isometric Smart Eco Home | 12 s |  |
-| 114 | Code Editor Typing | 12 s |  |
-| 115 | Underwater Reef Sunrays | 12 s |  |
-| 116 | Volcano Eruption at Night | 12 s |  |
-| 117 | Papercraft Mountain Sunrise | 12 s |  |
-| 118 | Campfire Flames, Black Overlay | 12 s |  |
-| 119 | Origami Cranes in Flight | 12 s |  |
-| 120 | Fitness Activity Rings | 12 s |  |
-| 121 | Animated Weather Icons | 12 s |  |
-| 122 | Burger Assembly Drop | 12 s |  |
-| 123 | Airplane Above Sunset Clouds | 12 s |  |
-| 124 | Live Reaction Stream | 12 s |  |
-| 125 | Dandelion Seeds in the Wind | 12 s |  |
-| 126 | Bioluminescent Jellyfish | 12 s |  |
-| 127 | Vintage Steam Locomotive | 12 s |  |
-| 128 | Summer Ice Cream Cone | 12 s |  |
-| 129 | High Stakes Chips and Cards | 12 s |  |
-| 130 | Prism Light Dispersion | 12 s |  |
-| 131 | Snow Globe Winter Village | 12 s |  |
-| 132 | Tropical Beach Aerial Waves | 12 s |  |
-| 133 | Vinyl Record Turntable | 12 s |  |
-| 134 | Ferris Wheel at Dusk | 12 s |  |
-| 135 | Lighthouse Beam in the Storm | 12 s |  |
-| 403 | Glitter Dust Trail (original look) | 15 s |  |
-| 404 | Gold Spiral (original look) | 15 s |  |
-| 405 | Aurora Chase (original look) | 15 s |  |
-| 406 | Orbit Halo (original look) | 15 s |  |
+| 136 | Ink Brush Reveal | 12 s |  |
+| 137 | Night Earth City Lights | 16 s |  |
+| 138 | Kinetic Title Light Sweep | 12 s |  |
+| 139 | Floating Likes and Hearts | 14 s |  |
+| 140 | Celebration Confetti Fall | 12 s |  |
+| 141 | Gold Coin Rain Flip | 14 s |  |
+| 142 | Notification Stack Phone UI | 12 s |  |
+| 143 | Parcels Drop Into Pile | 12 s |  |
+| 144 | Rising Growth Bar Chart | 14 s |  |
+| 145 | Radar Sonar Sweep | 14 s |  |
+| 146 | Ten Second Countdown Ring | 10 s |  |
+| 147 | Loading Ring to Success Check | 10 s |  |
+| 148 | Five Star Rating Pop | 10 s |  |
+| 149 | Liquid Color Wipe | 12 s |  |
+| 150 | Hyperspace Warp Streaks | 12 s |  |
+| 151 | Night Fireworks Finale | 14 s |  |
+| 152 | Heartbeat ECG Monitor | 12 s |  |
+| 153 | Gold Lower Third Banner | 10 s |  |
+| 154 | Subscribe Bell Ring | 10 s |  |
+| 155 | Ringed Planet and Satellite | 18 s |  |
+| 156 | Triangle Shard Transition | 10 s |  |
+| 157 | Pulsing Signal Connectivity | 12 s |  |
+| 158 | Neon Wireframe Cube | 14 s |  |
+| 159 | Mirrored Audio Equalizer | 12 s |  |
+| 160 | Glass Play Button Pulse | 12 s |  |
+| 161 | Market Candlestick Climb | 14 s |  |
+| 162 | Location Pin Drop Ripple | 12 s |  |
+| 163 | Interlocking Gear Mechanism | 12 s |  |
+| 164 | Idea Lightbulb Ignite | 10 s |  |
+| 165 | Cyber Shield Verified Scan | 12 s |  |
+| 166 | Startup Rocket Launch | 12 s |  |
+| 167 | Sale Starburst Badge | 10 s |  |
+| 168 | Gift Box Open Burst | 12 s |  |
+| 169 | Typewriter Headline | 12 s |  |
+| 170 | Paper Plane Flight | 12 s |  |
+| 171 | Progress Steps Timeline | 12 s |  |
+| 172 | Voice Assistant Waveform Ring | 12 s |  |
+| 173 | Analog Clock Time Lapse | 14 s |  |
+| 174 | Checklist Tick Off | 12 s |  |
+| 175 | Earth Orbit Sunrise Limb | 16 s |  |
+| 176 | Social Counter Notification Bubble | 10 s |  |
+| 177 | Red Rose Petals Falling | 16 s |  |
+| 178 | Cherry Blossom Petal Wind | 16 s |  |
+| 179 | Delivery Scooter City Ride | 12 s |  |
+| 180 | Gym Dumbbell Lift Rep | 10 s |  |
+| 181 | Phone Tap and Swipe Gesture | 12 s |  |
+| 182 | Performance Speedometer Sweep | 12 s |  |
+| 183 | DNA Double Helix Rotation | 14 s |  |
+| 184 | Wind Turbine Farm Spin | 14 s |  |
+| 185 | Battery Charge Fill | 10 s |  |
+| 186 | Fingerprint Biometric Scan | 12 s |  |
+| 187 | Cloud Upload Data Stream | 12 s |  |
+| 188 | Envelope Open Letter Reveal | 12 s |  |
+| 189 | Magnifier Search Reveal | 12 s |  |
+| 190 | Winner Podium Trophy Reveal | 12 s |  |
+| 191 | Aperture Iris Transition | 10 s |  |
+| 192 | Silk Ribbon Waves | 16 s |  |
+| 193 | Hologram HUD Radar Rings | 14 s |  |
+| 194 | Anamorphic Lens Flare Sweep | 10 s |  |
+| 195 | Volumetric Light Rays Sweep | 14 s |  |
+| 196 | Lightning Strike Flash | 12 s |  |
+| 197 | RGB Glitch Slice Transition | 10 s |  |
+| 198 | Fire Embers Rising | 14 s |  |
+| 199 | Binary Data Rain | 12 s |  |
+| 200 | Revenue Counter Surge | 12 s |  |
+| 201 | Neon OPEN Sign Flicker | 10 s |  |
+| 202 | Snowfall Parallax Pines | 16 s |  |
+| 203 | Gold Sparkle Glints Overlay | 12 s |  |
+| 204 | Blueprint House Draw-On | 14 s |  |
+| 205 | Contactless Payment Success | 12 s |  |
+| 206 | Total Solar Eclipse Corona | 16 s |  |
+| 207 | Vinyl Record Needle Drop | 14 s |  |
+| 208 | Cargo Ship Ocean Voyage | 16 s |  |
+| 209 | Aurora Borealis Over Peaks | 18 s |  |
+| 210 | Passport Visa Stamp Slam | 12 s |  |
+| 211 | Jackpot Slot Reels Win | 14 s |  |
+| 212 | Seedling Growth Time-Lapse | 16 s |  |
+| 213 | Product Showcase Pedestal Spotlight | 14 s |  |
+| 214 | Luxury Perfume Bottle Reveal | 14 s |  |
+| 215 | Latte Art Pour Top View | 14 s |  |
+| 216 | Hourglass Sand Time Flow | 16 s |  |
+| 217 | Smartwatch Activity Rings | 14 s |  |
+| 218 | Brilliant Diamond Light Sweep | 12 s |  |
