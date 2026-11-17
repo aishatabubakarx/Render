@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Snow Preview 15s</title>
+<style>
+  :root { color-scheme: dark; --bg: #000; --fg: #cfd8e3; --line: rgba(255,255,255,.18); }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; background: #000; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px;
+         padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); color: var(--fg); font-size: 13px; opacity: .55; transition: opacity .2s; }
+  .bar:hover { opacity: 1; }
+  button { background: none; border: 1px solid var(--line); color: var(--fg); border-radius: 6px; padding: 4px 10px; font: inherit; cursor: pointer; }
+  .track { flex: 1; height: 2px; background: var(--line); position: relative; }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--fg); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar">
+  <button id="pp">Pause</button>
+  <button id="rs">Restart</button>
+  <div class="track"><div class="fill" id="fill"></div></div>
+  <span id="tm">0.0 / 15.0 s</span>
+</div>
+<script>
+(function () {
+  var DUR = 15;
+  var cv = document.getElementById('c');
+  var ctx = cv.getContext('2d');
+  var W = 0, H = 0, dpr = 1;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // seeded random so the clip is identical on every play
+  var seed = 20261113;
+  function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
+
+  var flakes = [];
+  var N = 170;
+  for (var i = 0; i < N; i++) {
+    var layer = rnd();                       // 0 far, 1 near
+    var cycles = layer > 0.7 ? 1 : (layer > 0.3 ? 2 : 3);  // integer cycles per 15s keeps the loop seamless
+    flakes.push({
+      x: rnd(),
+      phase: rnd(),
+      cycles: cycles,
+      size: 0.6 + layer * 1.7,
+      swayAmp: 6 + rnd() * 18,
+      swayK: 1 + Math.floor(rnd() * 3),
+      swayPh: rnd() * Math.PI * 2,
+      twK: 6 + Math.floor(rnd() * 16),       // twinkle cycles per 15s
+      twPh: rnd() * Math.PI * 2,
+      glint: rnd() < 0.28,
+      alpha: 0.35 + layer * 0.55
+    });
+  }
+
+  var START_Y = -0.03;   // fraction of height where flakes appear
+  var END_Y = 0.62;      // flakes are fully faded before this line; none reach the lower part
+
+  function glintStar(x, y, r, a) {
+    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(x - r, y); ctx.lineTo(x + r, y);
+    ctx.moveTo(x, y - r); ctx.lineTo(x, y + r);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function draw(t) {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+
+    // global fade at clip start and end
+    var g = Math.min(1, t / 1.0, (DUR - t) / 1.0);
+    g = Math.max(0, g);
+
+    for (var i = 0; i < flakes.length; i++) {
+      var f = flakes[i];
+      var p = ((t / DUR) * f.cycles + f.phase) % 1;      // 0..1 progress along fall
+      var yFrac = START_Y + p * (END_Y - START_Y);
+      var y = yFrac * H;
+      var sway = Math.sin(2 * Math.PI * f.swayK * t / DUR + f.swayPh) * f.swayAmp;
+      var x = f.x * W + sway;
+
+      // fade in at the top, fade out well before the bottom of the fall zone
+      var env = Math.min(1, p / 0.12) * Math.min(1, (1 - p) / 0.45);
+      env = Math.max(0, env);
+
+      var tw = 0.5 + 0.5 * Math.sin(2 * Math.PI * f.twK * t / DUR + f.twPh);
+      var a = f.alpha * env * (0.55 + 0.45 * tw) * g;
+      if (a <= 0.003) continue;
+
+      // crisp core
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(235,244,255,' + a.toFixed(3) + ')';
+      ctx.arc(x, y, f.size, 0, Math.PI * 2);
+      ctx.fill();
+
+      // small tight halo, kept subtle
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(180,210,255,' + (a * 0.16).toFixed(3) + ')';
+      ctx.arc(x, y, f.size * 2.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // sparkle: soft brightness pulse near twinkle peak, no hard shapes
+      if (f.glint && tw > 0.8) {
+        var k = (tw - 0.8) / 0.2;
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(255,255,255,' + (a * 0.35 * k).toFixed(3) + ')';
+        ctx.arc(x, y, f.size * (1.3 + k * 0.9), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  var playing = true, tNow = 0, last = performance.now();
+  var pp = document.getElementById('pp'), rs = document.getElementById('rs');
+  var fill = document.getElementById('fill'), tm = document.getElementById('tm');
+
+  function frame(now) {
+    var dt = (now - last) / 1000; last = now;
+    if (playing) { tNow += dt; if (tNow >= DUR) tNow = tNow % DUR; }
+    draw(tNow);
+    fill.style.width = (tNow / DUR * 100) + '%';
+    tm.textContent = tNow.toFixed(1) + ' / ' + DUR.toFixed(1) + ' s';
+    requestAnimationFrame(frame);
+  }
+  pp.onclick = function () { playing = !playing; pp.textContent = playing ? 'Pause' : 'Play'; };
+  rs.onclick = function () { tNow = 0; };
+  requestAnimationFrame(function (n) { last = n; frame(n); });
+})();
+</script>
+</body>
+</html>
